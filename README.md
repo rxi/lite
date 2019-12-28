@@ -9,10 +9,11 @@ something practical, pretty, *small* and responsive, implemented as simply as
 possible; easy to modify and extend, or to use without doing either.
 
 ## Get
-Go to the [Releases](https://github.com/rxi/lite/releases) page to download
-precompiled binaries for Windows or Linux. Additional functionality can be added
-through plugins which are available from the
-[plugins repository](https://github.com/rxi/lite-plugins).
+Go to the [releases](https://github.com/rxi/lite/releases) page to download
+precompiled binaries for Windows and Linux. Additional functionality can be
+added through plugins which are available from the
+[plugins repository](https://github.com/rxi/lite-plugins). The editor can be
+customized by making changes to the [user module](data/user/init.lua).
 
 ## Building
 You can build the project yourself on Linux using the provided `build.py`
