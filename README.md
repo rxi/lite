@@ -9,9 +9,10 @@ something practical, pretty, *small* and responsive, implemented as simply as
 possible; easy to modify and extend, or to use without doing either.
 
 ## Get
-Go to the [Releases](#TODO) page to download precompiled binaries for Windows or
-Linux. Additional functionality can be added through plugins which are available
-from the [plugins repository](#TODO).
+Go to the [Releases](https://github.com/rxi/lite/releases) page to download
+precompiled binaries for Windows or Linux. Additional functionality can be added
+through plugins which are available from the
+[plugins repository](https://github.com/rxi/lite-plugins).
 
 ## Building
 You can build the project yourself on Linux using the provided `build.py`
@@ -20,10 +21,10 @@ changes to the Lua portion of the code.
 
 ## Contributing
 Any additional functionality that can be added through a plugin should be done
-so as a plugin, after which a pull request to the [plugins repository](#TODO)
-can be made. In hopes of remaining lightweight, pull requests adding additional
-functionality to the core will likely not be merged. Bug reports and bug fixes
-are welcome.
+so as a plugin, after which a pull request to the
+[plugins repository](https://github.com/rxi/lite-plugins) can be made. In hopes
+of remaining lightweight, pull requests adding additional functionality to the
+core will likely not be merged. Bug reports and bug fixes are welcome.
 
 ## License
 This project is free software; you can redistribute it and/or modify it under
