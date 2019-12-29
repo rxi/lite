@@ -5,18 +5,15 @@ keymap.modkeys = {}
 keymap.map = {}
 keymap.reverse_map = {}
 
+local modkey_map = {
+  ["left ctrl"]   = "ctrl",
+  ["right ctrl"]  = "ctrl",
+  ["left shift"]  = "shift",
+  ["right shift"] = "shift",
+  ["left alt"]    = "alt",
+}
 
 local modkeys = { "ctrl", "alt", "shift" }
-
-local function modkey(key)
-  for _, k in ipairs(modkeys) do
-    if key:find(k) then
-      return k
-    end
-  end
-  return false
-end
-
 
 local function key_to_stroke(k)
   local stroke = ""
@@ -55,7 +52,7 @@ end
 
 
 function keymap.on_key_pressed(k)
-  local mk = modkey(k)
+  local mk = modkey_map[k]
   if mk then
     keymap.modkeys[mk] = true
   else
@@ -74,7 +71,7 @@ end
 
 
 function keymap.on_key_released(k)
-  local mk = modkey(k)
+  local mk = modkey_map[k]
   if mk then
     keymap.modkeys[mk] = false
   end
