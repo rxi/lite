@@ -11,9 +11,10 @@ local modkey_map = {
   ["left shift"]  = "shift",
   ["right shift"] = "shift",
   ["left alt"]    = "alt",
+  ["right alt"]   = "altgr",
 }
 
-local modkeys = { "ctrl", "alt", "shift" }
+local modkeys = { "ctrl", "alt", "altgr", "shift" }
 
 local function key_to_stroke(k)
   local stroke = ""
@@ -55,6 +56,10 @@ function keymap.on_key_pressed(k)
   local mk = modkey_map[k]
   if mk then
     keymap.modkeys[mk] = true
+    -- work-around for windows where `altgr` is treated as `ctrl+alt`
+    if mk == "altgr" then
+      keymap.modkeys["ctrl"] = false
+    end
   else
     local stroke = key_to_stroke(k)
     local commands = keymap.map[stroke]
