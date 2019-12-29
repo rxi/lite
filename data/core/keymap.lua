@@ -6,7 +6,7 @@ keymap.map = {}
 keymap.reverse_map = {}
 
 
-local modkeys = { "ctrl", "alt", "shift" }
+local modkeys = { "ctrl", "left alt", "shift" }
 
 local function modkey(key)
   for _, k in ipairs(modkeys) do
