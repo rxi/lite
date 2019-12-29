@@ -300,11 +300,6 @@ end
 
 
 function DocView:update()
-  -- clamp to view bounds
-  local max_scroll = math.max(0, self:get_scrollable_size() - self.size.y)
-  self.scroll.y = math.min(max_scroll, self.scroll.y)
-  self.scroll.to.y = math.max(0, math.min(max_scroll, self.scroll.to.y))
-
   -- scroll to make caret visible and reset blink timer if it moved
   local line, col = self.doc:get_selection()
   if (line ~= self.last_line or col ~= self.last_col) and self.size.x > 0 then
