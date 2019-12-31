@@ -2,12 +2,57 @@
 #include <SDL2/SDL.h>
 #include "api/api.h"
 #include "renderer.h"
+
 #ifdef _WIN32
   #include <windows.h>
+#elif __linux__
+  #include <unistd.h>
+#elif __APPLE__
+  #include <mach-o/dyld.h>
 #endif
 
 
 SDL_Window *window;
+
+
+static double get_scale(void) {
+  float dpi;
+  SDL_GetDisplayDPI(0, NULL, &dpi, NULL);
+#if _WIN32
+  return dpi / 96.0;
+#elif __APPLE__
+  return dpi / 72.0;
+#else
+  return 1.0;
+#endif
+}
+
+
+const void get_exe_dir(char *buf, int sz) {
+#if _WIN32
+  int len = GetModuleFileName(NULL, buf, sz - 1);
+  buf[len] = '\0';
+#elif __linux__
+  char path[512];
+  sprintf(path, "/proc/%d/exe", getpid());
+  int len = readlink(path, buf, sz - 1);
+  buf[len] = '\0';
+#elif __APPLE__
+  unsigned size = sz;
+  _NSGetExecutablePath(buf, &size);
+#else
+  strcpy(buf, ".")
+#endif
+
+  for (int i = strlen(buf) - 1; i > 0; i--) {
+    if (buf[i] == '/' || buf[i] == '\\') {
+      buf[i] = '\0';
+      break;
+    }
+  }
+}
+
+
 
 int main(int argc, char **argv) {
 #ifdef _WIN32
@@ -46,16 +91,14 @@ int main(int argc, char **argv) {
   lua_setglobal(L, "_ARGS");
 
 
-  float dpi;
-  SDL_GetDisplayDPI(0, NULL, &dpi, NULL);
-#if _WIN32
-  lua_pushnumber(L, dpi / 96.0);
-#elif __APPLE__
-  lua_pushnumber(L, dpi / 72.0);
-#else
-  lua_pushnumber(L, 1.0);
-#endif
+  lua_pushnumber(L, get_scale());
   lua_setglobal(L, "_SCALE");
+
+
+  char exedir[2048];
+  get_exe_dir(exedir, sizeof(exedir));
+  lua_pushstring(L, exedir);
+  lua_setglobal(L, "_EXEDIR");
 
 
   (void) luaL_dostring(L,
@@ -63,7 +106,6 @@ int main(int argc, char **argv) {
     "xpcall(function()\n"
     "  _SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or _SCALE\n"
     "  _PATHSEP = package.config:sub(1, 1)\n"
-    "  _EXEDIR = _ARGS[1]:match('(.*)[/\\\\].*$')\n"
     "  package.path = _EXEDIR .. '/data/?.lua;' .. package.path\n"
     "  package.path = _EXEDIR .. '/data/?/init.lua;' .. package.path\n"
     "  core = require('core')\n"
