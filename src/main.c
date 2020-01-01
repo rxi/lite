@@ -28,7 +28,7 @@ static double get_scale(void) {
 }
 
 
-const void get_exe_dir(char *buf, int sz) {
+static void get_exe_dir(char *buf, int sz) {
 #if _WIN32
   int len = GetModuleFileName(NULL, buf, sz - 1);
   buf[len] = '\0';
