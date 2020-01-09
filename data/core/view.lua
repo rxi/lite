@@ -50,17 +50,18 @@ end
 
 
 function View:get_scrollbar_rect()
-  local sz = self:get_scrollable_size()
-  if sz <= self.size.y then
-    return 0, 0, 0, 0
-  end
-  local h = math.max(20, self.size.y * self.size.y / sz)
+  local bar_width = style.scrollbar_size
+
+  local scrollable = self:get_scrollable_size() + self.size.y - style.padding.y
+  local scale_y = self.size.y / scrollable
+  local top_y_offset = math.ceil(scale_y * self.scroll.y)
+
   return
-    self.position.x + self.size.x - style.scrollbar_size,
-    self.position.y + self.scroll.y * (self.size.y - h) / (sz - self.size.y),
-    style.scrollbar_size,
-    h
-end
+    self.position.x + self.size.x - bar_width,
+    self.position.y + top_y_offset,
+    bar_width,
+    math.max(20, self.size.y * scale_y + style.padding.y)
+  end
 
 
 function View:scrollbar_overlaps_point(x, y)
@@ -82,10 +83,22 @@ function View:on_mouse_released(button, x, y)
 end
 
 
+function View:clamp_scroll()
+  local max_scroll = self:get_scrollable_size() - style.padding.y
+  if self.scroll.to.y < 0 or max_scroll <= style.padding.y then
+    self.scroll.to.y = 0
+  elseif self.scroll.to.y > max_scroll then
+    self.scroll.to.y = max_scroll
+  end
+end
+
+
 function View:on_mouse_moved(x, y, dx, dy)
   if self.dragging_scrollbar then
-    local delta = self:get_scrollable_size() / self.size.y * dy
+    local scrollable = self:get_scrollable_size() + self.size.y - style.padding.y
+    local delta = scrollable / self.size.y * dy
     self.scroll.to.y = self.scroll.to.y + delta
+    self:clamp_scroll()
   end
   self.hovered_scrollbar = self:scrollbar_overlaps_point(x, y)
 end
@@ -99,6 +112,7 @@ end
 function View:on_mouse_wheel(y)
   if self.scrollable then
     self.scroll.to.y = self.scroll.to.y + y * -config.mouse_wheel_scroll
+    self:clamp_scroll()
   end
 end
 

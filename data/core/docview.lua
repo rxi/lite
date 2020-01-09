@@ -127,7 +127,7 @@ end
 
 
 function DocView:get_scrollable_size()
-  return self:get_line_height() * #self.doc.lines + style.padding.y * 2
+  return self:get_line_height() * (#self.doc.lines-1) + style.padding.y * 2
 end
 
 
@@ -236,6 +236,7 @@ function DocView:scroll_to_line(line, ignore_if_visible, instant)
       self.scroll.y = self.scroll.to.y
     end
   end
+  self:clamp_scroll()
 end
 
 
@@ -248,6 +249,7 @@ function DocView:scroll_to_make_visible(line, col)
   local xoffset = self:get_col_x_offset(line, col)
   local max = xoffset - self.size.x + gw + self.size.x / 5
   self.scroll.to.x = math.max(0, max)
+  self:clamp_scroll()
 end
 
 
