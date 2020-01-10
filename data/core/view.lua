@@ -99,8 +99,10 @@ function View:on_mouse_moved(x, y, dx, dy)
     local delta = scrollable / self.size.y * dy
     self.scroll.to.y = self.scroll.to.y + delta
     self:clamp_scroll()
+    return true
   end
   self.hovered_scrollbar = self:scrollbar_overlaps_point(x, y)
+  return false
 end
 
 

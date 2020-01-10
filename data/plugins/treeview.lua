@@ -53,6 +53,19 @@ function TreeView:get_item_height()
 end
 
 
+function TreeView:get_scrollable_size()
+  local count = 0
+  for item in self:each_item() do
+    count = count + 1
+  end
+  if count <= 0 then
+    count = 1
+  end
+
+  return self:get_item_height() * (count-1) + style.padding.y * 2
+end
+
+
 function TreeView:check_cache()
   -- invalidate cache's skip values if project_files has changed
   if core.project_files ~= self.last_project_files then
@@ -99,7 +112,13 @@ function TreeView:each_item()
 end
 
 
-function TreeView:on_mouse_moved(px, py)
+function TreeView:on_mouse_moved(px, py, ...)
+  local caught = TreeView.super.on_mouse_moved(self, px, py, ...)
+  if caught then
+    self.hovered_item = nil
+    return
+  end
+
   self.hovered_item = nil
   for item, x,y,w,h in self:each_item() do
     if px > x and py > y and px <= x + w and py <= y + h then
@@ -110,7 +129,12 @@ function TreeView:on_mouse_moved(px, py)
 end
 
 
-function TreeView:on_mouse_pressed(button, x, y)
+function TreeView:on_mouse_pressed(button, x, y, clicks)
+  local caught = TreeView.super.on_mouse_pressed(self, button, x, y, clicks)
+  if caught then
+    return
+  end
+
   if not self.hovered_item then
     return
   elseif self.hovered_item.type == "dir" then
@@ -120,6 +144,11 @@ function TreeView:on_mouse_pressed(button, x, y)
       core.root_view:open_doc(core.open_doc(self.hovered_item.filename))
     end)
   end
+end
+
+
+function TreeView:on_mouse_released(button)
+  TreeView.super.on_mouse_released(self, button)
 end
 
 
@@ -178,6 +207,8 @@ function TreeView:draw()
     x = x + spacing
     x = common.draw_text(style.font, color, item.name, nil, x, y, 0, h)
   end
+
+  self:draw_scrollbar()
 end
 
 
