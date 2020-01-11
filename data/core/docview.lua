@@ -241,8 +241,8 @@ end
 
 
 function DocView:scroll_to_make_visible(line, col)
-  local min = self:get_line_height() * (line - 1)
-  local max = self:get_line_height() * (line + 2) - self.size.y
+  local min = self:get_line_height() * (line - 1) + style.padding.y
+  local max = self:get_line_height() * (line + 2) - self.size.y + style.padding.y
   self.scroll.to.y = math.min(self.scroll.to.y, min)
   self.scroll.to.y = math.max(self.scroll.to.y, max)
   local gw = self:get_gutter_width()
