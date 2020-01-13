@@ -31,12 +31,14 @@ style.syntax = {}
 style.syntax["normal"] = { common.color "#F5F5F5" }
 style.syntax["symbol"] = { common.color "#F5F5F5" }
 style.syntax["comment"] = { common.color "#616C76" }
+style.syntax["doccomment"] = { common.color "#C5857E" }
 style.syntax["keyword"] = { common.color "#E58AC9" }
 style.syntax["keyword2"] = { common.color "#F77483" }
 style.syntax["number"] = { common.color "#FFA94D" }
 style.syntax["literal"] = { common.color "#FFA94D" }
 style.syntax["string"] = { common.color "#F8C34C" }
+style.syntax["bracket"] = { common.color "#93FAB8" }
 style.syntax["operator"] = { common.color "#93DDFA" }
-style.syntax["function"] = { common.color "#93DDFA" }
+style.syntax["function"] = { common.color "#5DB1FF" }
 
 return style
