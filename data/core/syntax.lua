@@ -110,6 +110,7 @@ syntax.add {
     ["enum"]     = "keyword",
     ["extern"]   = "keyword",
     ["static"]   = "keyword",
+    ["volatile"] = "keyword",
     ["const"]    = "keyword",
     ["inline"]   = "keyword",
     ["switch"]   = "keyword",
