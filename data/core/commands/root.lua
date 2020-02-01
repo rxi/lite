@@ -1,4 +1,5 @@
 local core = require "core"
+local style = require "core.style"
 local DocView = require "core.docview"
 local command = require "core.command"
 
@@ -71,10 +72,10 @@ for _, dir in ipairs { "left", "right", "up", "down" } do
     local x, y
     if dir == "left" or dir == "right" then
       y = node.position.y + node.size.y / 2
-      x = node.position.x + (dir == "left" and -1 or node.size.x + 1)
+      x = node.position.x + (dir == "left" and -1 or node.size.x + style.divider_size)
     else
       x = node.position.x + node.size.x / 2
-      y = node.position.y + (dir == "up"   and -1 or node.size.y + 1)
+      y = node.position.y + (dir == "up"   and -1 or node.size.y + style.divider_size)
     end
     local node = core.root_view.root_node:get_child_overlapping_point(x, y)
     if not node:get_locked_size() then
