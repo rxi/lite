@@ -49,7 +49,14 @@ function highlighter.tokenize(syntax, text, state)
       local s, e = find_non_escaped(text, p.pattern[2], i, p.pattern[3])
 
       if s then
-        push_token(res, p.type, text:sub(i, e))
+        local function token_ends_with(token, suffix)
+          return suffix == token:sub(-#suffix)
+        end
+        local token = text:sub(i, e)
+        if token_ends_with(token, "\n") then
+          token = token:sub(1, -2)
+        end
+        push_token(res, p.type, token)
         state = nil
         i = e + 1
       else
