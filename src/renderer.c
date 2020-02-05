@@ -173,6 +173,11 @@ RenFont* ren_load_font(const char *filename, float size) {
   float scale = stbtt_ScaleForMappingEmToPixels(&font->stbfont, size);
   font->height = (ascent - descent + linegap) * scale + 0.5;
 
+  /* make tab and newline glyphs invisible */
+  stbtt_bakedchar *g = get_glyphset(font, '\n')->glyphs;
+  g['\t'].x1 = g['\t'].x0;
+  g['\n'].x1 = g['\n'].x0;
+
   return font;
 
 fail:
