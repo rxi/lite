@@ -136,8 +136,6 @@ function DocView:tokenize_line(idx, state)
   cl.init_state = state
   cl.text = self.doc.lines[idx]
   cl.tokens, cl.state = highlighter.tokenize(self.syntax, cl.text, state)
-  local t = cl.tokens
-  t[#t] = t[#t]:sub(1, -2) -- strip '\n'
   return cl
 end
 
