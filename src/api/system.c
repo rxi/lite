@@ -313,6 +313,13 @@ static int f_fuzzy_match(lua_State *L) {
   return 1;
 }
 
+static int f_set_window_opacity(lua_State *L) {
+  double n = luaL_checknumber(L, 1);
+  int r = SDL_SetWindowOpacity(window, n);
+  lua_pushboolean(L, r > -1);
+  return 1;
+}
+
 
 static const luaL_Reg lib[] = {
   { "poll_event",          f_poll_event          },
@@ -328,6 +335,7 @@ static const luaL_Reg lib[] = {
   { "get_time",            f_get_time            },
   { "sleep",               f_sleep               },
   { "fuzzy_match",         f_fuzzy_match         },
+  { "set_window_opacity",  f_set_window_opacity  },
   { NULL, NULL }
 };
 
