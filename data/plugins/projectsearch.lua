@@ -139,6 +139,14 @@ function ResultsView:each_visible_result()
 end
 
 
+function ResultsView:scroll_to_make_selected_visible()
+  local h = self:get_line_height()
+  local y = self:get_results_yoffset() + h * (self.selected_idx - 1)
+  self.scroll.to.y = math.min(self.scroll.to.y, y)
+  self.scroll.to.y = math.max(self.scroll.to.y, y + h - self.size.y)
+end
+
+
 function ResultsView:draw()
   self:draw_background(style.background)
 
@@ -225,11 +233,13 @@ command.add(ResultsView, {
   ["project-search:select-previous"] = function()
     local view = core.active_view
     view.selected_idx = math.max(view.selected_idx - 1, 1)
+    view:scroll_to_make_selected_visible()
   end,
 
   ["project-search:select-next"] = function()
     local view = core.active_view
     view.selected_idx = math.min(view.selected_idx + 1, #view.results)
+    view:scroll_to_make_selected_visible()
   end,
 
   ["project-search:open-selected"] = function()
