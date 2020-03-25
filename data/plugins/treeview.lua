@@ -162,7 +162,7 @@ function TreeView:draw()
     -- icons
     x = x + (item.depth - root_depth) * style.padding.x + style.padding.x
     if item.type == "dir" then
-      local icon1 = item.expanded and "e" or "c"
+      local icon1 = item.expanded and "-" or "+"
       local icon2 = item.expanded and "D" or "d"
       common.draw_text(style.icon_font, color, icon1, nil, x, y, 0, h)
       x = x + style.padding.x
