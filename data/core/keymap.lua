@@ -88,6 +88,7 @@ keymap.add {
   ["ctrl+p"] = "core:open-project-file",
   ["ctrl+o"] = "core:open-file",
   ["ctrl+n"] = "core:new-doc",
+  ["alt+return"] = "core:toggle-fullscreen",
 
   ["alt+shift+j"] = "root:split-left",
   ["alt+shift+l"] = "root:split-right",

@@ -7,6 +7,8 @@ local DocView = require "core.docview"
 local LogView = require "core.logview"
 
 
+local fullscreen = false
+
 command.add(nil, {
   ["core:quit"] = function()
     core.quit()
@@ -14,6 +16,11 @@ command.add(nil, {
 
   ["core:force-quit"] = function()
     core.quit(true)
+  end,
+
+  ["core:toggle-fullscreen"] = function()
+    fullscreen = not fullscreen
+    system.set_fullscreen(fullscreen)
   end,
 
   ["core:reload-module"] = function()

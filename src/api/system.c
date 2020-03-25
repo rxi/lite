@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <stdbool.h>
 #include <sys/stat.h>
 #include "api.h"
 #ifdef _WIN32
@@ -156,6 +157,14 @@ static int f_set_cursor(lua_State *L) {
 static int f_set_window_title(lua_State *L) {
   const char *title = luaL_checkstring(L, 1);
   SDL_SetWindowTitle(window, title);
+  return 0;
+}
+
+
+static int f_set_fullscreen(lua_State *L) {
+  luaL_checkany(L, 1);
+  bool b = lua_toboolean(L, 1);
+  SDL_SetWindowFullscreen(window, b ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
   return 0;
 }
 
@@ -318,6 +327,7 @@ static const luaL_Reg lib[] = {
   { "poll_event",          f_poll_event          },
   { "set_cursor",          f_set_cursor          },
   { "set_window_title",    f_set_window_title    },
+  { "set_fullscreen",      f_set_fullscreen      },
   { "window_has_focus",    f_window_has_focus    },
   { "show_confirm_dialog", f_show_confirm_dialog },
   { "list_dir",            f_list_dir            },
