@@ -20,7 +20,7 @@ command.add(nil, {
 
   ["core:toggle-fullscreen"] = function()
     fullscreen = not fullscreen
-    system.set_fullscreen(fullscreen)
+    system.set_window_mode(fullscreen and "fullscreen" or "normal")
   end,
 
   ["core:reload-module"] = function()

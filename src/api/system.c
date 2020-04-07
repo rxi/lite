@@ -161,10 +161,15 @@ static int f_set_window_title(lua_State *L) {
 }
 
 
-static int f_set_fullscreen(lua_State *L) {
-  luaL_checkany(L, 1);
-  bool b = lua_toboolean(L, 1);
-  SDL_SetWindowFullscreen(window, b ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+static const char *window_opts[] = { "normal", "maximized", "fullscreen", 0 };
+enum { WIN_NORMAL, WIN_MAXIMIZED, WIN_FULLSCREEN };
+
+static int f_set_window_mode(lua_State *L) {
+  int n = luaL_checkoption(L, 1, "normal", window_opts);
+  SDL_SetWindowFullscreen(window,
+    n == WIN_FULLSCREEN ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+  if (n == WIN_NORMAL) { SDL_RestoreWindow(window); }
+  if (n == WIN_MAXIMIZED) { SDL_MaximizeWindow(window); }
   return 0;
 }
 
@@ -327,7 +332,7 @@ static const luaL_Reg lib[] = {
   { "poll_event",          f_poll_event          },
   { "set_cursor",          f_set_cursor          },
   { "set_window_title",    f_set_window_title    },
-  { "set_fullscreen",      f_set_fullscreen      },
+  { "set_window_mode",     f_set_window_mode     },
   { "window_has_focus",    f_window_has_focus    },
   { "show_confirm_dialog", f_show_confirm_dialog },
   { "list_dir",            f_list_dir            },
