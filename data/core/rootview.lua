@@ -104,13 +104,18 @@ function Node:close_active_view(root)
       self:set_active_view(self.views[idx] or self.views[#self.views])
     else
       local parent = self:get_parent_node(root)
-      local other = parent[parent.a == self and "b" or "a"]
+      local is_a = (parent.a == self)
+      local other = parent[is_a and "b" or "a"]
       if other:get_locked_size() then
         self.views = {}
         self:add_view(EmptyView())
       else
         parent:consume(other)
-        parent:set_active_view(parent.active_view)
+        local p = parent
+        while p.type ~= "leaf" do
+          p = p[is_a and "a" or "b"]
+        end
+        p:set_active_view(p.active_view)
       end
     end
   end
@@ -129,6 +134,7 @@ end
 
 
 function Node:set_active_view(view)
+  assert(self.type == "leaf", "tried to set active view on non-leaf node")
   self.active_view = view
   core.active_view = view
 end
