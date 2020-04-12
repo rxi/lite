@@ -70,14 +70,18 @@ local commands = {
   end,
 
   ["doc:cut"] = function()
-    local text = doc():get_text(doc():get_selection())
-    system.set_clipboard(text)
-    doc():delete_to(0)
+    if doc():has_selection() then
+      local text = doc():get_text(doc():get_selection())
+      system.set_clipboard(text)
+      doc():delete_to(0)
+    end
   end,
 
   ["doc:copy"] = function()
-    local text = doc():get_text(doc():get_selection())
-    system.set_clipboard(text)
+    if doc():has_selection() then
+      local text = doc():get_text(doc():get_selection())
+      system.set_clipboard(text)
+    end
   end,
 
   ["doc:paste"] = function()
