@@ -340,11 +340,22 @@ end
 
 function DocView:draw_line_text(idx, x, y)
   local cl = self:get_cached_line(idx)
+  local tx, ty = x, y + self:get_line_text_y_offset()
+  local font = self:get_font()
+  for _, type, text in highlighter.each_token(cl.tokens) do
+    local color = style.syntax[type]
+    tx = renderer.draw_text(font, text, tx, ty, color)
+  end
+end
+
+
+function DocView:draw_line_body(idx, x, y)
   local line, col = self.doc:get_selection()
 
   -- draw selection if it overlaps this line
   local line1, col1, line2, col2 = self.doc:get_selection(true)
   if idx >= line1 and idx <= line2 then
+    local cl = self:get_cached_line(idx)
     if line1 ~= idx then col1 = 1 end
     if line2 ~= idx then col2 = #cl.text + 1 end
     local x1 = x + self:get_col_x_offset(idx, col1)
@@ -360,12 +371,7 @@ function DocView:draw_line_text(idx, x, y)
   end
 
   -- draw line's text
-  local tx, ty = x, y + self:get_line_text_y_offset()
-  local font = self:get_font()
-  for _, type, text in highlighter.each_token(cl.tokens) do
-    local color = style.syntax[type]
-    tx = renderer.draw_text(font, text, tx, ty, color)
-  end
+  self:draw_line_text(idx, x, y)
 
   -- draw caret if it overlaps this line
   if line == idx and core.active_view == self
@@ -378,7 +384,7 @@ function DocView:draw_line_text(idx, x, y)
 end
 
 
-function DocView:draw_gutter_text(idx, x, y)
+function DocView:draw_line_gutter(idx, x, y)
   local color = style.line_number
   local line1, _, line2, _ = self.doc:get_selection(true)
   if idx >= line1 and idx <= line2 then
@@ -402,7 +408,7 @@ function DocView:draw()
   local _, y = self:get_line_screen_position(minline)
   local x = self:get_content_offset() + style.padding.x
   for i = minline, maxline do
-    self:draw_gutter_text(i, x, y)
+    self:draw_line_gutter(i, x, y)
     y = y + lh
   end
 
@@ -411,7 +417,7 @@ function DocView:draw()
   local pos = self.position
   core.push_clip_rect(pos.x + gw, pos.y, self.size.x, self.size.y)
   for i = minline, maxline do
-    self:draw_line_text(i, x, y)
+    self:draw_line_body(i, x, y)
     y = y + lh
   end
   core.pop_clip_rect()

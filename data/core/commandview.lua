@@ -204,7 +204,7 @@ function CommandView:draw_line_highlight()
 end
 
 
-function CommandView:draw_gutter_text(idx, x, y)
+function CommandView:draw_line_gutter(idx, x, y)
   local yoffset = self:get_line_text_y_offset()
   local pos = self.position
   local color = common.lerp(style.text, style.accent, self.gutter_text_brightness / 100)
