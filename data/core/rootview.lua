@@ -470,14 +470,6 @@ function RootView:update()
   copy_position_and_size(self.root_node, self)
   self.root_node:update()
   self.root_node:update_layout()
-
-  -- do `on_mouse_moved` if the scroll of the hovered view has changed
-  local x, y = self.mouse.x, self.mouse.y
-  local s = self.root_node:get_child_overlapping_point(x, y).active_view.scroll
-  if self.last_scroll_x ~= s.x or self.last_scroll_y ~= s.y then
-    self:on_mouse_moved(self.mouse.x, self.mouse.y, 0, 0)
-    self.last_scroll_x, self.last_scroll_y = s.x, s.y
-  end
 end
 
 
