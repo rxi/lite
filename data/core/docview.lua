@@ -346,6 +346,21 @@ function DocView:draw_line_text(idx, x, y)
     local color = style.syntax[type]
     tx = renderer.draw_text(font, text, tx, ty, color)
   end
+
+  if config.draw_whitespace then
+    local color = style.whitespace
+    tx = x
+    for i = 1, #cl.text do
+      local char = cl.text:sub(i, i)
+      local width = font:get_width(char)
+      if char == " " then
+        renderer.draw_text(font, ".", tx, ty, color)
+      elseif char == "\t" then
+        renderer.draw_text(font, "›", tx, ty, color)
+      end
+      tx = tx + width
+    end
+  end
 end
 
 

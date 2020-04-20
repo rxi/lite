@@ -26,6 +26,7 @@ style.line_number2 = { common.color "#73739e" }
 style.line_highlight = { common.color "#252533" }
 style.scrollbar = { common.color "#323245" }
 style.scrollbar2 = { common.color "#3b3b52" }
+style.whitespace = { common.color "rgba(255, 255, 255, 0.2)" }
 
 style.syntax = {}
 style.syntax["normal"] = { common.color "#F5F5F5" }
