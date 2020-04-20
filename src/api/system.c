@@ -328,6 +328,12 @@ static int f_fuzzy_match(lua_State *L) {
 }
 
 
+static int f_platform(lua_State *L) {
+  lua_pushstring(L, SDL_GetPlatform());
+  return 1;
+}
+
+
 static const luaL_Reg lib[] = {
   { "poll_event",          f_poll_event          },
   { "set_cursor",          f_set_cursor          },
@@ -343,6 +349,7 @@ static const luaL_Reg lib[] = {
   { "get_time",            f_get_time            },
   { "sleep",               f_sleep               },
   { "fuzzy_match",         f_fuzzy_match         },
+  { "platform",            f_platform            },
   { NULL, NULL }
 };
 
