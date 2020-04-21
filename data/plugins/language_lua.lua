@@ -17,7 +17,7 @@ syntax.add {
     { pattern = "[%+%-=/%*%^%%#<>]",      type = "operator" },
     { pattern = "[%a_][%w_]*%s*%f[(\"{]", type = "function" },
     { pattern = "[%a_][%w_]*",            type = "symbol"   },
-    { pattern = "::[%a_][%w_]*::",        type = "literal"  },
+    { pattern = "::[%a_][%w_]*::",        type = "function" },
   },
   symbols = {
     ["if"]       = "keyword",
