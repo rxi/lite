@@ -17,6 +17,7 @@ syntax.add {
     { pattern = "[%+%-=/%*%^%%#<>]",      type = "operator" },
     { pattern = "[%a_][%w_]*%s*%f[(\"{]", type = "function" },
     { pattern = "[%a_][%w_]*",            type = "symbol"   },
+    { pattern = "::[%a_][%w_]*::",        type = "literal"  },
   },
   symbols = {
     ["if"]       = "keyword",
@@ -37,6 +38,7 @@ syntax.add {
     ["not"]      = "keyword",
     ["and"]      = "keyword",
     ["or"]       = "keyword",
+    ["goto"]     = "keyword",
     ["self"]     = "keyword2",
     ["true"]     = "literal",
     ["false"]    = "literal",
