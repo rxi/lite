@@ -51,7 +51,7 @@ function LogView:draw()
     x = x + style.padding.x
     local subx = x
     x = renderer.draw_text(style.font, item.text, x, y, style.text)
-    x = renderer.draw_text(style.font, " in " .. item.view, x, y, style.dim)
+    x = renderer.draw_text(style.font, " at " .. item.at, x, y, style.dim)
     y = y + th
     if item.info then
       for line in item.info:gmatch("[^\n]+") do

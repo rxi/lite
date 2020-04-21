@@ -231,8 +231,9 @@ local function log(icon, icon_color, fmt, ...)
     core.status_view:show_message(icon, icon_color, text)
   end
 
-  local view = core.active_view and core.active_view:get_name()
-  local item = { text = text, time = os.time(), view = view }
+  local info = debug.getinfo(2, "Sl")
+  local at = string.format("%s:%d", info.short_src, info.currentline)
+  local item = { text = text, time = os.time(), at = at }
   table.insert(core.log_items, item)
   if #core.log_items > config.max_log_items then
     table.remove(core.log_items, 1)
