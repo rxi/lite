@@ -1,7 +1,8 @@
 #include <SDL2/SDL.h>
+#include <stdbool.h>
 #include <ctype.h>
 #include <dirent.h>
-#include <stdbool.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include "api.h"
 #ifdef _WIN32
@@ -212,7 +213,11 @@ static int f_list_dir(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
 
   DIR *dir = opendir(path);
-  if (!dir) { luaL_error(L, "could not open directory: %s", path); }
+  if (!dir) {
+    lua_pushnil(L);
+    lua_pushstring(L, strerror(errno));
+    return 2;
+  }
 
   lua_newtable(L);
   int i = 1;
@@ -250,7 +255,11 @@ static int f_get_file_info(lua_State *L) {
 
   struct stat s;
   int err = stat(path, &s);
-  if (err < 0) { return 0; }
+  if (err < 0) {
+    lua_pushnil(L);
+    lua_pushstring(L, strerror(errno));
+    return 2;
+  }
 
   lua_newtable(L);
   lua_pushnumber(L, s.st_mtime);
