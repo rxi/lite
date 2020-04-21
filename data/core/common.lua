@@ -84,8 +84,7 @@ end
 
 function common.path_suggest(text)
   local path, name = text:match("^(.-)([^/\\]*)$")
-  local ok, files = pcall(system.list_dir, path == "" and "." or path)
-  if not ok then return {} end
+  local files = system.list_dir(path == "" and "." or path) or {}
   local res = {}
   for _, file in ipairs(files) do
     file = path .. file
