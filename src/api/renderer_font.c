@@ -24,7 +24,7 @@ static int f_set_tab_width(lua_State *L) {
 
 static int f_gc(lua_State *L) {
   RenFont **self = luaL_checkudata(L, 1, API_TYPE_FONT);
-  rencache_free_font(*self);
+  if (*self) { rencache_free_font(*self); }
   return 0;
 }
 
