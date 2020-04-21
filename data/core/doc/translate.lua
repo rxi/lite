@@ -1,8 +1,8 @@
 local common = require "core.common"
 local config = require "core.config"
 
--- functions for translating a Doc position to another position
--- these functions can be passed to Doc:move_to|select_to|delete()
+-- functions for translating a Doc position to another position these functions
+-- can be passed to Doc:move_to|select_to|delete_to()
 
 local translate = {}
 
