@@ -173,7 +173,8 @@ end
 
 function core.add_thread(f, weak_ref)
   local key = weak_ref or #core.threads + 1
-  core.threads[key] = { cr = coroutine.create(f), wake = 0 }
+  local fn = function() return core.try(f) end
+  core.threads[key] = { cr = coroutine.create(fn), wake = 0 }
 end
 
 
