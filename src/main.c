@@ -90,10 +90,11 @@ int main(int argc, char **argv) {
   }
   lua_setglobal(L, "_ARGS");
 
+  lua_pushstring(L, SDL_GetPlatform());
+  lua_setglobal(L, "_PLATFORM");
 
   lua_pushnumber(L, get_scale());
   lua_setglobal(L, "_SCALE");
-
 
   char exedir[2048];
   get_exe_dir(exedir, sizeof(exedir));
