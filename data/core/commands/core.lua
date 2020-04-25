@@ -62,7 +62,7 @@ command.add(nil, {
 
   ["core:open-project-file"] = function()
     core.command_view:enter("Open Project File", function(text, item)
-      text = core.project_dir .. _PATHSEP .. (item and item.text or text)
+      text = core.project_dir .. PATHSEP .. (item and item.text or text)
       core.root_view:open_doc(core.open_doc(text))
     end, function(text)
       local files = {}

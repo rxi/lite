@@ -32,7 +32,7 @@ local function project_scan_thread()
 
     for _, file in ipairs(all) do
       if not file:find("^%.") then
-        local file = path .. _PATHSEP .. file
+        local file = path .. PATHSEP .. file
         local info = system.get_file_info(file)
         if info and info.size < size_limit then
           table.insert(info.type == "dir" and dirs or files, file)
@@ -86,9 +86,9 @@ function core.init()
   core.project_files = {}
   core.project_dir = "."
 
-  local info = _ARGS[2] and system.get_file_info(_ARGS[2])
+  local info = ARGS[2] and system.get_file_info(ARGS[2])
   if info and info.type == "dir" then
-    core.project_dir = _ARGS[2]:gsub("[\\/]$", "")
+    core.project_dir = ARGS[2]:gsub("[\\/]$", "")
   end
 
   core.root_view = RootView()
@@ -104,8 +104,8 @@ function core.init()
   local got_plugin_error = not core.load_plugins()
   local got_user_error = not core.try(require, "user")
 
-  for i = 2, #_ARGS do
-    local filename = _ARGS[i]
+  for i = 2, #ARGS do
+    local filename = ARGS[i]
     local info = system.get_file_info(filename)
     if info and info.type == "file" then
       core.root_view:open_doc(core.open_doc(filename))
@@ -146,7 +146,7 @@ end
 
 function core.load_plugins()
   local no_errors = true
-  local files = system.list_dir(_EXEDIR .. "/data/plugins")
+  local files = system.list_dir(EXEDIR .. "/data/plugins")
   for _, filename in ipairs(files) do
     local modname = "plugins." .. filename:gsub(".lua$", "")
     local ok = core.try(require, modname)
@@ -405,7 +405,7 @@ end
 
 function core.on_error(err)
   -- write error to file
-  local fp = io.open(_EXEDIR .. "/error.txt", "wb")
+  local fp = io.open(EXEDIR .. "/error.txt", "wb")
   fp:write("Error: " .. tostring(err) .. "\n")
   fp:write(debug.traceback(nil, 4))
   fp:close()

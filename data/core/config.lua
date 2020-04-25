@@ -8,7 +8,7 @@ config.mouse_wheel_scroll = 50
 config.file_size_limit = 10
 config.symbol_pattern = "[%a_][%w_]*"
 config.non_word_chars = " \t\n/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-"
-config.treeview_size = 200 * _SCALE
+config.treeview_size = 200 * SCALE
 config.undo_merge_timeout = 0.3
 config.max_undos = 10000
 config.highlight_current_line = true

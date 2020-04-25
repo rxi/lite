@@ -88,27 +88,30 @@ int main(int argc, char **argv) {
     lua_pushstring(L, argv[i]);
     lua_rawseti(L, -2, i + 1);
   }
-  lua_setglobal(L, "_ARGS");
+  lua_setglobal(L, "ARGS");
+
+  lua_pushstring(L, "1.01");
+  lua_setglobal(L, "VERSION");
 
   lua_pushstring(L, SDL_GetPlatform());
-  lua_setglobal(L, "_PLATFORM");
+  lua_setglobal(L, "PLATFORM");
 
   lua_pushnumber(L, get_scale());
-  lua_setglobal(L, "_SCALE");
+  lua_setglobal(L, "SCALE");
 
   char exedir[2048];
   get_exe_dir(exedir, sizeof(exedir));
   lua_pushstring(L, exedir);
-  lua_setglobal(L, "_EXEDIR");
+  lua_setglobal(L, "EXEDIR");
 
 
   (void) luaL_dostring(L,
     "local core\n"
     "xpcall(function()\n"
-    "  _SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or _SCALE\n"
-    "  _PATHSEP = package.config:sub(1, 1)\n"
-    "  package.path = _EXEDIR .. '/data/?.lua;' .. package.path\n"
-    "  package.path = _EXEDIR .. '/data/?/init.lua;' .. package.path\n"
+    "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
+    "  PATHSEP = package.config:sub(1, 1)\n"
+    "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
+    "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
     "  core = require('core')\n"
     "  core.init()\n"
     "  core.run()\n"
