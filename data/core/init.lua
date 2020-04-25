@@ -133,7 +133,7 @@ function core.quit(force)
   if dirty_count > 0 then
     local text
     if dirty_count == 1 then
-      text = string.format("%q has unsaved changes. Quit anyway?", dirty_name)
+      text = string.format("\"%s\" has unsaved changes. Quit anyway?", dirty_name)
     else
       text = string.format("%d docs have unsaved changes. Quit anyway?", dirty_count)
     end
@@ -210,7 +210,7 @@ function core.open_doc(filename)
   -- no existing doc for filename; create new
   local doc = Doc(filename)
   table.insert(core.docs, doc)
-  core.log_quiet(filename and "Opened doc %q" or "Opened new doc", filename)
+  core.log_quiet(filename and "Opened doc \"%s\"" or "Opened new doc", filename)
   return doc
 end
 
@@ -339,7 +339,7 @@ function core.step()
     local doc = core.docs[i]
     if #core.get_views_referencing_doc(doc) == 0 then
       table.remove(core.docs, i)
-      core.log_quiet("Closed doc %q", doc:get_name())
+      core.log_quiet("Closed doc \"%s\"", doc:get_name())
     end
   end
 
