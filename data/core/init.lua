@@ -260,7 +260,7 @@ end
 function core.try(fn, ...)
   local err
   local ok, res = xpcall(fn, function(msg)
-    local item = core.error(msg)
+    local item = core.error("%s", msg)
     item.info = debug.traceback(nil, 2):gsub("\t", "")
     err = msg
   end, ...)
