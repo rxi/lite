@@ -13,7 +13,7 @@ syntax.add {
     { pattern = { "%*", "[%*\n]", "\\" }, type = "operator" },
     { pattern = { "%_", "[%_\n]", "\\" }, type = "keyword2" },
     { pattern = "#.-\n",                  type = "keyword"  },
-    { pattern = "!?%[.*%]%(.*%)",         type = "function" },
+    { pattern = "!?%[.-%]%(.-%)",         type = "function" },
     { pattern = "https?://%S+",           type = "function" },
   },
   symbols = { },
