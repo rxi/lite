@@ -1,6 +1,4 @@
 local core = require "core"
-local common = require "core.common"
-local config = require "core.config"
 local style = require "core.style"
 local View = require "core.view"
 
@@ -10,7 +8,7 @@ local LogView = View:extend()
 
 function LogView:new()
   LogView.super.new(self)
-  self.last_item = 0
+  self.last_item = core.log_items[#core.log_items]
   self.scrollable = true
   self.yoffset = 0
 end
