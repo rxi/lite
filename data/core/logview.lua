@@ -27,7 +27,6 @@ function LogView:update()
     self.yoffset = -(style.font:get_height() + style.padding.y)
   end
 
-  self.scroll.to.y = math.max(0, self.scroll.to.y)
   self:move_towards("yoffset", 0)
 
   LogView.super.update(self)

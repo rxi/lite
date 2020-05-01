@@ -127,7 +127,7 @@ end
 
 
 function DocView:get_scrollable_size()
-  return self:get_line_height() * #self.doc.lines + style.padding.y * 2
+  return self:get_line_height() * (#self.doc.lines - 1) + self.size.y
 end
 
 

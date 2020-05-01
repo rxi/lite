@@ -124,8 +124,6 @@ end
 
 
 function TreeView:update()
-  self.scroll.to.y = math.max(0, self.scroll.to.y)
-
   -- update width
   local dest = self.visible and config.treeview_size or 0
   self:move_towards(self.size, "x", dest)

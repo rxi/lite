@@ -102,7 +102,6 @@ end
 
 
 function ResultsView:update()
-  self.scroll.to.y = math.max(0, self.scroll.to.y)
   ResultsView.super.update(self)
 end
 
@@ -118,7 +117,6 @@ end
 
 
 function ResultsView:get_scrollable_size()
-  local rh = style.padding.y + style.font:get_height()
   return self:get_results_yoffset() + #self.results * self:get_line_height()
 end
 
