@@ -127,7 +127,7 @@ keymap.add {
   ["ctrl+x"] = "doc:cut",
   ["ctrl+c"] = "doc:copy",
   ["ctrl+v"] = "doc:paste",
-  ["escape"] = { "command:escape" },
+  ["escape"] = { "command:escape", "doc:select-none" },
   ["tab"] = { "command:complete", "doc:indent" },
   ["shift+tab"] = "doc:unindent",
   ["backspace"] = "doc:backspace",

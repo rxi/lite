@@ -135,6 +135,11 @@ local commands = {
     doc():set_selection(1, 1, math.huge, math.huge)
   end,
 
+  ["doc:select-none"] = function()
+    local line, col = doc():get_selection()
+    doc():set_selection(line, col)
+  end,
+
   ["doc:select-lines"] = function()
     local line1, _, line2, _, swap = doc():get_selection(true)
     append_line_if_last_line(line2)
