@@ -40,6 +40,7 @@ end
 
 
 function ResultsView:begin_search(text, fn)
+  self.search_args = { text, fn }
   self.results = {}
   self.last_file_idx = 1
   self.query = text
@@ -55,7 +56,14 @@ function ResultsView:begin_search(text, fn)
     end
     self.searching = false
     core.redraw = true
-  end, self)
+  end, self.results)
+
+  self.scroll.to.y = 0
+end
+
+
+function ResultsView:refresh()
+  self:begin_search(table.unpack(self.search_args))
 end
 
 
@@ -245,9 +253,14 @@ command.add(ResultsView, {
   ["project-search:open-selected"] = function()
     core.active_view:open_selected_result()
   end,
+
+  ["project-search:refresh"] = function()
+    core.active_view:refresh()
+  end,
 })
 
 keymap.add {
+  ["f5"]           = "project-search:refresh",
   ["ctrl+shift+f"] = "project-search:find",
   ["up"]           = "project-search:select-previous",
   ["down"]         = "project-search:select-next",
