@@ -110,11 +110,6 @@ end
 function StatusView:draw()
   self:draw_background(style.background2)
 
-  local th = style.font:get_height()
-  local x, y = self:get_content_offset()
-  x = x + style.padding.x
-  y = y + (self.size.y - th) / 2
-
   if self.message then
     self:draw_items(self.message, false, self.size.y)
   end
