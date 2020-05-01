@@ -241,7 +241,9 @@ function Node:get_locked_size()
     local x1, y1 = self.a:get_locked_size()
     local x2, y2 = self.b:get_locked_size()
     if x1 and x2 then
-      return x1 + x2 + style.divider_size, y1 + y2 + style.divider_size
+      local dsx = (x1 < 1 or x2 < 1) and 0 or style.divider_size
+      local dsy = (y1 < 1 or y2 < 1) and 0 or style.divider_size
+      return x1 + x2 + dsx, y1 + y2 + dsy
     end
   end
 end
@@ -257,11 +259,11 @@ end
 -- axis are swapped; this function lets us use the same code for both
 local function calc_split_sizes(self, x, y, x1, x2)
   local n
-  local ds = (x1 == 0 or x2 == 0) and 0 or style.divider_size
+  local ds = (x1 and x1 < 1 or x2 and x2 < 1) and 0 or style.divider_size
   if x1 then
-    n = math.floor(x1 + ds)
+    n = x1 + ds
   elseif x2 then
-    n = math.floor(self.size[x] - x2)
+    n = self.size[x] - x2
   else
     n = math.floor(self.size[x] * self.divider)
   end
@@ -347,7 +349,7 @@ function Node:draw()
       self:draw_tabs()
     end
     local pos, size = self.active_view.position, self.active_view.size
-    core.push_clip_rect(pos.x, pos.y, size.x, size.y)
+    core.push_clip_rect(pos.x, pos.y, size.x + pos.x % 1, size.y + pos.y % 1)
     self.active_view:draw()
     core.pop_clip_rect()
   else
