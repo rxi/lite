@@ -1,7 +1,5 @@
 local core = require "core"
-local common = require "core.common"
 local command = require "core.command"
-local config = require "core.config"
 local search = require "core.doc.search"
 local DocView = require "core.docview"
 
@@ -84,6 +82,20 @@ local function replace(pattern_escape)
   end)
 end
 
+
+local function has_selection()
+  return core.active_view:is(DocView)
+     and core.active_view.doc:has_selection()
+end
+
+command.add(has_selection, {
+  ["find-replace:select-next"] = function()
+    local l1, c1, l2, c2 = doc():get_selection(true)
+    local text = doc():get_text(l1, c1, l2, c2)
+    local l1, c1, l2, c2 = search.find(doc(), l2, c2, text, { wrap = true })
+    doc():set_selection(l2, c2, l1, c1)
+  end
+})
 
 command.add("core.docview", {
   ["find-replace:find"] = function()

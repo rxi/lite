@@ -140,7 +140,7 @@ keymap.add {
   ["ctrl+shift+return"] = "doc:newline-above",
   ["ctrl+j"] = "doc:join-lines",
   ["ctrl+a"] = "doc:select-all",
-  ["ctrl+d"] = "doc:select-word",
+  ["ctrl+d"] = { "find-replace:select-next", "doc:select-word" },
   ["ctrl+l"] = "doc:select-lines",
   ["ctrl+/"] = "doc:toggle-line-comments",
   ["ctrl+up"] = "doc:move-lines-up",
