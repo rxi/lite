@@ -1,5 +1,6 @@
 local core = require "core"
 local command = require "core.command"
+local config = require "core.config"
 local search = require "core.doc.search"
 local DocView = require "core.docview"
 
@@ -67,15 +68,11 @@ local function find(label, search_fn)
 end
 
 
-local function replace(pattern_escape)
+local function replace(fn)
   core.command_view:enter("Find To Replace", function(old)
     core.command_view:enter("Replace \"" .. old .. "\" With", function(new)
       local n = doc():replace(function(text)
-        if pattern_escape then
-          return text:gsub(old:gsub("%W", "%%%1"), new:gsub("%%", "%%%%"), nil)
-        else
-          return text:gsub(old, new)
-        end
+        return fn(text, old, new)
       end)
       core.log("Replaced %d instance(s) of %q with %q", n, old, new)
     end)
@@ -137,10 +134,27 @@ command.add("core.docview", {
   end,
 
   ["find-replace:replace"] = function()
-    replace(true)
+    replace(function(text, old, new)
+      return text:gsub(old:gsub("%W", "%%%1"), new:gsub("%%", "%%%%"), nil)
+    end)
   end,
 
   ["find-replace:replace-pattern"] = function()
-    replace(false)
+    replace(function(text, old, new)
+      return text:gsub(old, new)
+    end)
+  end,
+
+  ["find-replace:replace-symbol"] = function()
+    replace(function(text, old, new)
+      local n = 0
+      local res =  text:gsub(config.symbol_pattern, function(sym)
+        if old == sym then
+          n = n + 1
+          return new
+        end
+      end)
+      return res, n
+    end)
   end,
 })
