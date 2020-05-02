@@ -12,6 +12,7 @@ local ResultsView = View:extend()
 function ResultsView:new(text, fn)
   ResultsView.super.new(self)
   self.scrollable = true
+  self.brightness = 0
   self:begin_search(text, fn)
 end
 
@@ -55,6 +56,7 @@ function ResultsView:begin_search(text, fn)
       self.last_file_idx = i
     end
     self.searching = false
+    self.brightness = 100
     core.redraw = true
   end, self.results)
 
@@ -102,6 +104,7 @@ end
 
 
 function ResultsView:update()
+  self:move_towards("brightness", 0, 0.1)
   ResultsView.super.update(self)
 end
 
@@ -169,14 +172,16 @@ function ResultsView:draw()
     text = string.format("Found %d matches for %q",
       #self.results, self.query)
   end
-  renderer.draw_text(style.font, text, x, y, style.text)
+  local color = common.lerp(style.text, style.accent, self.brightness / 100)
+  renderer.draw_text(style.font, text, x, y, color)
 
   -- horizontal line
   local yoffset = self:get_results_yoffset()
   local x = ox + style.padding.x
   local w = self.size.x - style.padding.x * 2
   local h = style.divider_size
-  renderer.draw_rect(x, oy + yoffset - style.padding.y, w, h, style.dim)
+  local color = common.lerp(style.dim, style.text, self.brightness / 100)
+  renderer.draw_rect(x, oy + yoffset - style.padding.y, w, h, color)
   if self.searching then
     renderer.draw_rect(x, oy + yoffset - style.padding.y, w * per, h, style.text)
   end
