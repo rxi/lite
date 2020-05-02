@@ -23,7 +23,7 @@ if "windows" in opt:
     lflags += [ "res.res" ]
 
     def pre():
-      os.system("x86_64-w64-mingw32-windres res.rc -O coff -o res.res")
+        os.system("x86_64-w64-mingw32-windres res.rc -O coff -o res.res")
 
     def post():
-      os.remove("res.res")
+        os.remove("res.res")
