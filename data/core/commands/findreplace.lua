@@ -68,13 +68,14 @@ local function find(label, search_fn)
 end
 
 
-local function replace(fn)
-  core.command_view:enter("Find To Replace", function(old)
-    core.command_view:enter("Replace \"" .. old .. "\" With", function(new)
+local function replace(kind, fn)
+  core.command_view:enter("Find To Replace " .. kind, function(old)
+    local s = string.format("Replace %s %q With", kind, old)
+    core.command_view:enter(s, function(new)
       local n = doc():replace(function(text)
         return fn(text, old, new)
       end)
-      core.log("Replaced %d instance(s) of %q with %q", n, old, new)
+      core.log("Replaced %d instance(s) of %s %q with %q", n, kind, old, new)
     end)
   end)
 end
@@ -134,19 +135,19 @@ command.add("core.docview", {
   end,
 
   ["find-replace:replace"] = function()
-    replace(function(text, old, new)
+    replace("Text", function(text, old, new)
       return text:gsub(old:gsub("%W", "%%%1"), new:gsub("%%", "%%%%"), nil)
     end)
   end,
 
   ["find-replace:replace-pattern"] = function()
-    replace(function(text, old, new)
+    replace("Pattern", function(text, old, new)
       return text:gsub(old, new)
     end)
   end,
 
   ["find-replace:replace-symbol"] = function()
-    replace(function(text, old, new)
+    replace("Symbol", function(text, old, new)
       local n = 0
       local res =  text:gsub(config.symbol_pattern, function(sym)
         if old == sym then
