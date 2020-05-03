@@ -79,32 +79,39 @@ function StatusView:draw_items(items, right_align, yoffset)
 end
 
 
-local function draw_for_doc_view(self, x, y)
-  local dv = core.active_view
-  local line, col = dv.doc:get_selection()
-  local dirty = dv.doc:is_dirty()
+function StatusView:get_items()
+  if getmetatable(core.active_view) == DocView then
+    local dv = core.active_view
+    local line, col = dv.doc:get_selection()
+    local dirty = dv.doc:is_dirty()
 
-  self:draw_items {
-    dirty and style.accent or style.text, style.icon_font, "f",
-    style.dim, style.font, separator2, style.text,
-    dv.doc.filename and style.text or style.dim, dv.doc:get_name(),
-    style.text,
-    separator,
-    "line: ", line,
-    separator,
-    col > config.line_limit and style.accent or style.text, "col: ", col,
-    style.text,
-    separator,
-    string.format("%d%%", line / #dv.doc.lines * 100),
-  }
+    return {
+      dirty and style.accent or style.text, style.icon_font, "f",
+      style.dim, style.font, separator2, style.text,
+      dv.doc.filename and style.text or style.dim, dv.doc:get_name(),
+      style.text,
+      separator,
+      "line: ", line,
+      separator,
+      col > config.line_limit and style.accent or style.text, "col: ", col,
+      style.text,
+      separator,
+      string.format("%d%%", line / #dv.doc.lines * 100),
+    }, {
+      style.icon_font, "g",
+      style.font, style.dim, separator2, style.text,
+      #dv.doc.lines, " lines",
+      separator,
+      dv.doc.crlf and "CRLF" or "LF"
+    }
+  end
 
-  self:draw_items({
+  return {}, {
     style.icon_font, "g",
-    style.font, style.dim, separator2, style.text,
-    #dv.doc.lines, " lines",
-    separator,
-    dv.doc.crlf and "CRLF" or "LF"
-  }, true)
+    style.font, style.dim, separator2,
+    #core.docs, style.text, " / ",
+    #core.project_files, " files"
+  }
 end
 
 
@@ -115,16 +122,9 @@ function StatusView:draw()
     self:draw_items(self.message, false, self.size.y)
   end
 
-  if getmetatable(core.active_view) == DocView then
-    draw_for_doc_view(self)
-  else
-    self:draw_items({
-      style.icon_font, "g",
-      style.font, style.dim, separator2,
-      #core.docs, style.text, " / ",
-      #core.project_files, " files"
-    }, true)
-  end
+  local left, right = self:get_items()
+  self:draw_items(left)
+  self:draw_items(right, true)
 end
 
 
