@@ -42,38 +42,39 @@ function StatusView:update()
 end
 
 
-function StatusView:draw_items(items, right_align, yoffset)
+local function draw_items(self, items, x, y, draw_fn)
   local font = style.font
   local color = style.text
-  local x, y = self:get_content_offset()
-  y = y + (yoffset or 0)
 
-  local i
-  if right_align then
-    x = x + self.size.x - style.padding.x
-    i = #items
-  else
-    x = x + style.padding.x
-    i = 1
-  end
-
-  while items[i] do
-    local item = items[i]
-
+  for _, item in ipairs(items) do
     if type(item) == "userdata" then
       font = item
     elseif type(item) == "table" then
       color = item
     else
-      if right_align then
-        x = x - font:get_width(item)
-        common.draw_text(font, color, item, nil, x, y, 0, self.size.y)
-      else
-        x = common.draw_text(font, color, item, nil, x, y, 0, self.size.y)
-      end
+      x = draw_fn(font, color, item, nil, x, y, 0, self.size.y)
     end
+  end
 
-    i = i + (right_align and -1 or 1)
+  return x
+end
+
+
+local function text_width(font, _, text, _, x)
+  return x + font:get_width(text)
+end
+
+
+function StatusView:draw_items(items, right_align, yoffset)
+  local x, y = self:get_content_offset()
+  y = y + (yoffset or 0)
+  if right_align then
+    local w = draw_items(self, items, 0, 0, text_width)
+    x = x + self.size.x - w - style.padding.x
+    draw_items(self, items, x, y, common.draw_text)
+  else
+    x = x + style.padding.x
+    draw_items(self, items, x, y, common.draw_text)
   end
 end
 
@@ -98,8 +99,8 @@ local function draw_for_doc_view(self, x, y)
   }
 
   self:draw_items({
-    "g", style.icon_font,
-    style.text, separator2, style.dim, style.font,
+    style.icon_font, "g",
+    style.font, style.dim, separator2, style.text,
     #dv.doc.lines, " lines",
     separator,
     dv.doc.crlf and "CRLF" or "LF"
@@ -118,9 +119,9 @@ function StatusView:draw()
     draw_for_doc_view(self)
   else
     self:draw_items({
-      "g", style.icon_font,
-      style.text, separator2, style.dim, style.font,
-      #core.docs, " / ", style.dim,
+      style.icon_font, "g",
+      style.font, style.dim, separator2,
+      #core.docs, style.text, " / ",
       #core.project_files, " files"
     }, true)
   end
