@@ -8,8 +8,8 @@ local View = require "core.view"
 
 local StatusView = View:extend()
 
-local separator  = "      "
-local separator2 = "   |   "
+StatusView.separator  = "      "
+StatusView.separator2 = "   |   "
 
 
 function StatusView:new()
@@ -23,7 +23,7 @@ end
 function StatusView:show_message(icon, icon_color, text)
   self.message = {
     icon_color, style.icon_font, icon,
-    style.dim, style.font, separator2, style.text, text
+    style.dim, style.font, StatusView.separator2, style.text, text
   }
   self.message_timeout = system.get_time() + config.message_timeout
 end
@@ -87,28 +87,28 @@ function StatusView:get_items()
 
     return {
       dirty and style.accent or style.text, style.icon_font, "f",
-      style.dim, style.font, separator2, style.text,
+      style.dim, style.font, self.separator2, style.text,
       dv.doc.filename and style.text or style.dim, dv.doc:get_name(),
       style.text,
-      separator,
+      self.separator,
       "line: ", line,
-      separator,
+      self.separator,
       col > config.line_limit and style.accent or style.text, "col: ", col,
       style.text,
-      separator,
+      self.separator,
       string.format("%d%%", line / #dv.doc.lines * 100),
     }, {
       style.icon_font, "g",
-      style.font, style.dim, separator2, style.text,
+      style.font, style.dim, self.separator2, style.text,
       #dv.doc.lines, " lines",
-      separator,
+      self.separator,
       dv.doc.crlf and "CRLF" or "LF"
     }
   end
 
   return {}, {
     style.icon_font, "g",
-    style.font, style.dim, separator2,
+    style.font, style.dim, self.separator2,
     #core.docs, style.text, " / ",
     #core.project_files, " files"
   }
