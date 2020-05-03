@@ -134,6 +134,8 @@ keymap.add {
   ["shift+backspace"] = "doc:backspace",
   ["ctrl+backspace"] = "doc:delete-to-previous-word-boundary",
   ["ctrl+shift+backspace"] = "doc:delete-to-previous-word-boundary",
+  ["ctrl+delete"] = "doc:delete-to-next-word-boundary",
+  ["ctrl+shift+delete"] = "doc:delete-to-next-word-boundary",
   ["delete"] = "doc:delete",
   ["return"] = { "command:submit", "doc:newline" },
   ["ctrl+return"] = "doc:newline-below",
