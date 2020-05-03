@@ -109,7 +109,7 @@ function common.draw_text(font, color, text, align, x,y,w,h)
   elseif align == "right" then
     x = x + (w - tw)
   end
-  y = math.ceil(y + (h - th) / 2)
+  y = common.round(y + (h - th) / 2)
   return renderer.draw_text(font, text, x, y, color), y + th
 end
 
