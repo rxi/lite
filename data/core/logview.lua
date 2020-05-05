@@ -33,6 +33,18 @@ function LogView:update()
 end
 
 
+local function draw_text_multiline(font, text, x, y, color)
+  local th = font:get_height()
+  local resx, resy = x, y
+  for line in text:gmatch("[^\n]+") do
+    resy = y
+    resx = renderer.draw_text(style.font, line, x, y, color)
+    y = y + th
+  end
+  return resx, resy
+end
+
+
 function LogView:draw()
   self:draw_background(style.background)
 
@@ -47,14 +59,12 @@ function LogView:draw()
     x = renderer.draw_text(style.font, time, x, y, style.dim)
     x = x + style.padding.x
     local subx = x
-    x = renderer.draw_text(style.font, item.text, x, y, style.text)
-    x = renderer.draw_text(style.font, " at " .. item.at, x, y, style.dim)
+    x, y = draw_text_multiline(style.font, item.text, x, y, style.text)
+    renderer.draw_text(style.font, " at " .. item.at, x, y, style.dim)
     y = y + th
     if item.info then
-      for line in item.info:gmatch("[^\n]+") do
-        renderer.draw_text(style.font, line, subx, y, style.dim)
-        y = y + th
-      end
+      subx, y = draw_text_multiline(style.font, item.info, subx, y, style.dim)
+      y = y + th
     end
     y = y + style.padding.y
   end

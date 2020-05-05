@@ -226,7 +226,7 @@ end
 
 
 local function log(icon, icon_color, fmt, ...)
-  local text = string.format(fmt, ...):gsub("%s", " ")
+  local text = string.format(fmt, ...)
   if icon then
     core.status_view:show_message(icon, icon_color, text)
   end
