@@ -37,6 +37,7 @@ log_lock = threading.Lock()
 def log(msg, mode=Hint):
     log_lock.acquire()
     print log_prefix[mode], msg
+    sys.stdout.flush()
     log_lock.release()
 
 
