@@ -17,10 +17,15 @@ local function project_scan_thread()
   local function diff_files(a, b)
     if #a ~= #b then return true end
     for i, v in ipairs(a) do
-      if b[i].filename ~= v.filename or b[i].type ~= v.type then
+      if b[i].filename ~= v.filename
+      or b[i].modified ~= v.modified then
         return true
       end
     end
+  end
+
+  local function compare_file(a, b)
+    return a.filename < b.filename
   end
 
   local function get_files(path, t)
@@ -35,20 +40,21 @@ local function project_scan_thread()
         local file = path .. PATHSEP .. file
         local info = system.get_file_info(file)
         if info and info.size < size_limit then
-          table.insert(info.type == "dir" and dirs or files, file)
+          info.filename = file
+          table.insert(info.type == "dir" and dirs or files, info)
         end
       end
     end
 
-    table.sort(dirs)
-    for _, dir in ipairs(dirs) do
-      table.insert(t, { filename = dir, type = "dir" })
-      get_files(dir, t)
+    table.sort(dirs, compare_file)
+    for _, f in ipairs(dirs) do
+      table.insert(t, f)
+      get_files(f.filename, t)
     end
 
-    table.sort(files)
-    for _, file in ipairs(files) do
-      table.insert(t, { filename = file, type = "file" })
+    table.sort(files, compare_file)
+    for _, f in ipairs(files) do
+      table.insert(t, f)
     end
 
     return t
