@@ -103,6 +103,7 @@ function core.init()
   command.add_defaults()
   local got_plugin_error = not core.load_plugins()
   local got_user_error = not core.try(require, "user")
+  local got_project_error = not core.load_project_file()
 
   for i = 2, #ARGS do
     local filename = ARGS[i]
@@ -112,7 +113,7 @@ function core.init()
     end
   end
 
-  if got_plugin_error or got_user_error then
+  if got_plugin_error or got_user_error or got_project_error then
     command.perform("core:open-log")
   end
 end
@@ -157,6 +158,19 @@ function core.load_plugins()
     end
   end
   return no_errors
+end
+
+
+function core.load_project_file()
+  local filename = core.project_dir .. "/.lite_project.lua"
+  if system.get_file_info(filename) then
+    return core.try(function()
+      local fn, err = loadfile(filename)
+      if not fn then error("Error when loading project file:\n\t" .. err) end
+      fn()
+    end)
+  end
+  return true
 end
 
 
