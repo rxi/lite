@@ -35,7 +35,7 @@ command.add(nil, {
     end)
   end,
 
-  ["core:do-command"] = function()
+  ["core:command-finder"] = function()
     local commands = command.get_all_valid()
     core.command_view:enter("Do Command", function(text, item)
       if item then
@@ -54,12 +54,8 @@ command.add(nil, {
     end)
   end,
 
-  ["core:new-doc"] = function()
-    core.root_view:open_doc(core.open_doc())
-  end,
-
-  ["core:open-project-file"] = function()
-    core.command_view:enter("Open Project File", function(text, item)
+  ["core:file-finder"] = function()
+    core.command_view:enter("Open File From Project", function(text, item)
       text = core.project_dir .. PATHSEP .. (item and item.text or text)
       core.root_view:open_doc(core.open_doc(text))
     end, function(text)
@@ -73,6 +69,10 @@ command.add(nil, {
     end)
   end,
 
+  ["core:new-doc"] = function()
+    core.root_view:open_doc(core.open_doc())
+  end,
+
   ["core:open-file"] = function()
     core.command_view:enter("Open File", function(text)
       core.root_view:open_doc(core.open_doc(text))
@@ -82,5 +82,20 @@ command.add(nil, {
   ["core:open-log"] = function()
     local node = core.root_view:get_active_node()
     node:add_view(LogView())
+  end,
+
+  ["core:open-user-module"] = function()
+    core.root_view:open_doc(core.open_doc(EXEDIR .. "/data/user/init.lua"))
+  end,
+
+  ["core:open-project-module"] = function()
+    local filename = core.project_dir .. "/.lite_project.lua"
+    if system.get_file_info(filename) then
+      core.root_view:open_doc(core.open_doc(filename))
+    else
+      local doc = core.open_doc()
+      core.root_view:open_doc(doc)
+      doc:save(filename)
+    end
   end,
 })

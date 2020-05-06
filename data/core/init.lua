@@ -103,7 +103,7 @@ function core.init()
   command.add_defaults()
   local got_plugin_error = not core.load_plugins()
   local got_user_error = not core.try(require, "user")
-  local got_project_error = not core.load_project_file()
+  local got_project_error = not core.load_project_module()
 
   for i = 2, #ARGS do
     local filename = ARGS[i]
@@ -161,12 +161,12 @@ function core.load_plugins()
 end
 
 
-function core.load_project_file()
+function core.load_project_module()
   local filename = core.project_dir .. "/.lite_project.lua"
   if system.get_file_info(filename) then
     return core.try(function()
       local fn, err = loadfile(filename)
-      if not fn then error("Error when loading project file:\n\t" .. err) end
+      if not fn then error("Error when loading project module:\n\t" .. err) end
       fn()
     end)
   end
