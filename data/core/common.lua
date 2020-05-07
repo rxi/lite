@@ -60,7 +60,7 @@ end
 
 local function fuzzy_match_items(items, needle)
   local res = {}
-  for i, item in ipairs(items) do
+  for _, item in ipairs(items) do
     local score = system.fuzzy_match(tostring(item), needle)
     if score then
       table.insert(res, { text = item, score = score })

@@ -216,7 +216,6 @@ end
 local function draw_suggestions_box(self)
   local lh = self:get_suggestion_line_height()
   local dh = style.divider_size
-  local offsety = self:get_line_text_y_offset()
   local x, _ = self:get_line_screen_position()
   local h = math.ceil(self.suggestions_height)
   local rx, ry, rw, rh = self.position.x, self.position.y - h - dh, self.size.x, h
