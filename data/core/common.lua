@@ -102,6 +102,18 @@ function common.path_suggest(text)
 end
 
 
+function common.matches_pattern(text, pattern, ...)
+  if type(pattern) == "string" then
+    return text:find(pattern, ...)
+  end
+  for _, p in ipairs(pattern) do
+    local s, e = common.matches_pattern(text, p, ...)
+    if s then return s, e end
+  end
+  return false
+end
+
+
 function common.draw_text(font, color, text, align, x,y,w,h)
   local tw, th = font:get_width(text), font:get_height(text)
   if align == "center" then
