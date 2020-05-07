@@ -102,12 +102,12 @@ function common.path_suggest(text)
 end
 
 
-function common.matches_pattern(text, pattern, ...)
+function common.match_pattern(text, pattern, ...)
   if type(pattern) == "string" then
     return text:find(pattern, ...)
   end
   for _, p in ipairs(pattern) do
-    local s, e = common.matches_pattern(text, p, ...)
+    local s, e = common.match_pattern(text, p, ...)
     if s then return s, e end
   end
   return false

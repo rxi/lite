@@ -14,7 +14,7 @@ end
 function syntax.get(filename)
   for i = #syntax.items, 1, -1 do
     local t = syntax.items[i]
-    if common.matches_pattern(filename, t.files) then
+    if common.match_pattern(filename, t.files) then
       return t
     end
   end
