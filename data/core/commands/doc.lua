@@ -218,8 +218,8 @@ local commands = {
   end,
 
   ["doc:toggle-line-comments"] = function()
-    if not dv().syntax.comment then return end
-    local text = dv().syntax.comment .. " "
+    if not doc().highlighter.syntax.comment then return end
+    local text = doc().highlighter.syntax.comment .. " "
     local line1, _, line2 = doc():get_selection(true)
     local uncomment = true
     for line = line1, line2 do
