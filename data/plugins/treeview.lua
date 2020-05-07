@@ -24,6 +24,7 @@ function TreeView:new()
   self.scrollable = true
   self.focusable = false
   self.visible = true
+  self.init_size = true
   self.cache = {}
 end
 
@@ -126,7 +127,12 @@ end
 function TreeView:update()
   -- update width
   local dest = self.visible and config.treeview_size or 0
-  self:move_towards(self.size, "x", dest)
+  if self.init_size then
+    self.size.x = dest
+    self.init_size = false
+  else
+    self:move_towards(self.size, "x", dest)
+  end
 
   TreeView.super.update(self)
 end
@@ -182,7 +188,6 @@ end
 -- init
 local view = TreeView()
 local node = core.root_view:get_active_node()
-view.size.x = config.treeview_size
 node:split("left", view, true)
 
 -- register commands and keymap
