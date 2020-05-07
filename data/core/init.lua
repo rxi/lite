@@ -1,5 +1,4 @@
 require "core.strict"
-local common = require "core.common"
 local config = require "core.config"
 local style = require "core.style"
 local command
@@ -8,7 +7,6 @@ local RootView
 local StatusView
 local CommandView
 local Doc
-local View
 
 local core = {}
 
@@ -79,7 +77,6 @@ function core.init()
   command = require "core.command"
   keymap = require "core.keymap"
   RootView = require "core.rootview"
-  View = require "core.view"
   StatusView = require "core.statusview"
   CommandView = require "core.commandview"
   Doc = require "core.doc"
