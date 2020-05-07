@@ -1,4 +1,5 @@
 local Object = require "core.object"
+local Highlighter = require "core.doc.highlighter"
 local config = require "core.config"
 local common = require "core.common"
 
@@ -19,7 +20,6 @@ local function splice(t, at, remove, insert)
   insert = insert or {}
   local offset = #insert - remove
   local old_len = #t
-  local new_len = old_len + offset
   if offset < 0 then
     for i = at - offset, old_len - offset do
       t[i + offset] = t[i]
@@ -49,6 +49,7 @@ function Doc:reset()
   self.undo_stack = { idx = 1 }
   self.redo_stack = { idx = 1 }
   self.clean_change_id = 1
+  self.highlighter = Highlighter(self)
 end
 
 
@@ -68,6 +69,7 @@ function Doc:load(filename)
     table.insert(self.lines, "\n")
   end
   fp:close()
+  self.highlighter:reset_syntax()
 end
 
 
@@ -80,6 +82,7 @@ function Doc:save(filename)
   end
   fp:close()
   self.filename = filename or self.filename
+  self.highlighter:reset_syntax()
   self:clean()
 end
 
@@ -233,6 +236,9 @@ local function insert(self, undo_stack, time, line, col, text)
   local line2, col2 = self:position_offset(line, col, #text)
   push_undo(self, undo_stack, time, "selection", self:get_selection())
   push_undo(self, undo_stack, time, "remove", line, col, line2, col2)
+
+  -- update highlighter
+  self.highlighter:invalidate(line)
 end
 
 
@@ -252,6 +258,9 @@ local function remove(self, undo_stack, time, line1, col1, line2, col2)
 
   -- splice line into line array
   splice(self.lines, line1, line2 - line1 + 1, { before .. after })
+
+  -- update highlighter
+  self.highlighter:invalidate(line1)
 end
 
 

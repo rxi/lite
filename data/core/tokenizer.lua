@@ -1,4 +1,4 @@
-local highlighter = {}
+local tokenizer = {}
 
 
 local function push_token(t, type, text)
@@ -38,7 +38,7 @@ local function find_non_escaped(text, pattern, offset, esc)
 end
 
 
-function highlighter.tokenize(syntax, text, state)
+function tokenizer.tokenize(syntax, text, state)
   local res = {}
   local i = 1
 
@@ -100,9 +100,9 @@ local function iter(t, i)
   end
 end
 
-function highlighter.each_token(t)
+function tokenizer.each_token(t)
   return iter, t, -1
 end
 
 
-return highlighter
+return tokenizer
