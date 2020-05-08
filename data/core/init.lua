@@ -321,7 +321,6 @@ end
 
 function core.step()
   -- handle events
-  local event_count = 0
   local did_keymap = false
   local mouse_moved = false
   local mouse = { x = 0, y = 0, dx = 0, dy = 0 }
@@ -336,7 +335,7 @@ function core.step()
     else
       did_keymap = core.on_event(type, a, b, c, d) or did_keymap
     end
-    event_count = event_count + 1
+    core.redraw = true
   end
   if mouse_moved then
     core.on_event("mousemoved", mouse.x, mouse.y, mouse.dx, mouse.dy)
@@ -347,9 +346,7 @@ function core.step()
   -- update
   core.root_view.size.x, core.root_view.size.y = width, height
   core.root_view:update()
-  if not (event_count > 0 or core.redraw) then
-    return
-  end
+  if not core.redraw then return end
   core.redraw = false
 
   -- close unreferenced docs
