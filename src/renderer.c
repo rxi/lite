@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <math.h>
 #include "lib/stb/stb_truetype.h"
-#include "xalloc.h"
 #include "renderer.h"
 
 #define MAX_GLYPHSET 256
@@ -28,6 +27,15 @@ struct RenFont {
 
 static SDL_Window *window;
 static struct { int left, top, right, bottom; } clip;
+
+
+static void* check_alloc(void *ptr) {
+  if (!ptr) {
+    fprintf(stderr, "Fatal error: memory allocation failed\n");
+    exit(EXIT_FAILURE);
+  }
+  return ptr;
+}
 
 
 static const char* utf8_to_codepoint(const char *p, unsigned *dst) {
@@ -77,7 +85,8 @@ void ren_get_size(int *x, int *y) {
 
 RenImage* ren_new_image(int width, int height) {
   assert(width > 0 && height > 0);
-  RenImage *image = xmalloc(sizeof(RenImage) + width * height * sizeof(RenColor));
+  RenImage *image = malloc(sizeof(RenImage) + width * height * sizeof(RenColor));
+  check_alloc(image);
   image->pixels = (void*) (image + 1);
   image->width = width;
   image->height = height;
@@ -86,12 +95,12 @@ RenImage* ren_new_image(int width, int height) {
 
 
 void ren_free_image(RenImage *image) {
-  xfree(image);
+  free(image);
 }
 
 
 static GlyphSet* load_glyphset(RenFont *font, int idx) {
-  GlyphSet *set = xcalloc(1, sizeof(GlyphSet));
+  GlyphSet *set = check_alloc(calloc(1, sizeof(GlyphSet)));
 
   /* init image */
   int width = 128;
@@ -149,7 +158,7 @@ RenFont* ren_load_font(const char *filename, float size) {
   FILE *fp = NULL;
 
   /* init font */
-  font = xcalloc(1, sizeof(RenFont));
+  font = check_alloc(calloc(1, sizeof(RenFont)));
   font->size = size;
 
   /* load font into buffer */
@@ -158,7 +167,7 @@ RenFont* ren_load_font(const char *filename, float size) {
   /* get size */
   fseek(fp, 0, SEEK_END); int buf_size = ftell(fp); fseek(fp, 0, SEEK_SET);
   /* load */
-  font->data = xmalloc(buf_size);
+  font->data = check_alloc(malloc(buf_size));
   int _ = fread(font->data, 1, buf_size, fp); (void) _;
   fclose(fp);
   fp = NULL;
@@ -182,8 +191,8 @@ RenFont* ren_load_font(const char *filename, float size) {
 
 fail:
   if (fp) { fclose(fp); }
-  if (font) { xfree(font->data); }
-  xfree(font);
+  if (font) { free(font->data); }
+  free(font);
   return NULL;
 }
 
@@ -193,11 +202,11 @@ void ren_free_font(RenFont *font) {
     GlyphSet *set = font->sets[i];
     if (set) {
       ren_free_image(set->image);
-      xfree(set);
+      free(set);
     }
   }
-  xfree(font->data);
-  xfree(font);
+  free(font->data);
+  free(font);
 }
 
 
