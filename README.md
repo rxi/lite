@@ -3,19 +3,24 @@
 
 A lightweight text editor written in Lua
 
+* **[Get lite](https://github.com/rxi/lite/releases/latest)** — Download
+  for Windows and Linux
+* **[Get plugins](https://github.com/rxi/lite-plugins)** — Add additional
+  functionality
+* **[Get color themes](https://github.com/rxi/lite-colors)** — Add additional colors
+  themes
+
 ## Overview
 lite is a lightweight text editor written mostly in Lua — it aims to provide
-something practical, pretty, *small* and responsive, implemented as simply as
+something practical, pretty, *small* and fast, implemented as simply as
 possible; easy to modify and extend, or to use without doing either.
 
-## Get
-Go to the **[releases](https://github.com/rxi/lite/releases/latest)** page to
-download precompiled binaries for Windows and Linux. Additional functionality
-can be added through plugins which are available from the **[plugins
-repository](https://github.com/rxi/lite-plugins)**; additional color themes can
-be found in the **[colors repository](https://github.com/rxi/lite-colors)**. The
-editor can be customized by making changes to the [user
-module](data/user/init.lua).
+## Customization
+Additional functionality can be added through plugins which are available from
+the [plugins repository](https://github.com/rxi/lite-plugins); additional color
+themes can be found in the [colors repository](https://github.com/rxi/lite-colors).
+The editor can be customized by making changes to the
+[user module](data/user/init.lua).
 
 ## Building
 You can build the project yourself on Linux using the provided `build.py`
