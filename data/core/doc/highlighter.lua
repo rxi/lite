@@ -1,5 +1,4 @@
 local core = require "core"
-local syntax = require "core.syntax"
 local config = require "core.config"
 local tokenizer = require "core.tokenizer"
 local Object = require "core.object"
@@ -10,7 +9,9 @@ local Highlighter = Object:extend()
 
 function Highlighter:new(doc)
   self.doc = doc
-  self:reset_syntax()
+  self.lines = {}
+  self.last_valid_line = 1
+  self.max_wanted_line = 0
 
   -- init incremental syntax highlighting
   core.add_thread(function()
@@ -39,28 +40,17 @@ function Highlighter:new(doc)
 end
 
 
-function Highlighter:reset_syntax()
-  local syn = syntax.get(self.doc.filename or "")
-  if self.syntax ~= syn then
-    self.syntax = syn
-    self.lines = {}
-    self.last_valid_line = 1
-    self.max_wanted_line = 0
-  end
-end
-
-
 function Highlighter:invalidate(idx)
   self.last_valid_line = idx
 end
 
 
 function Highlighter:tokenize_line(idx, state)
-  local line = {}
-  line.init_state = state
-  line.text = self.doc.lines[idx]
-  line.tokens, line.state = tokenizer.tokenize(self.syntax, line.text, state)
-  return line
+  local res = {}
+  res.init_state = state
+  res.text = self.doc.lines[idx]
+  res.tokens, res.state = tokenizer.tokenize(self.doc.syntax, res.text, state)
+  return res
 end
 
 

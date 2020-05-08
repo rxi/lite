@@ -1,5 +1,6 @@
 local Object = require "core.object"
 local Highlighter = require "core.doc.highlighter"
+local syntax = require "core.syntax"
 local config = require "core.config"
 local common = require "core.common"
 
@@ -50,6 +51,16 @@ function Doc:reset()
   self.redo_stack = { idx = 1 }
   self.clean_change_id = 1
   self.highlighter = Highlighter(self)
+  self:reset_syntax()
+end
+
+
+function Doc:reset_syntax()
+  local syn = syntax.get(self.filename or "")
+  if self.syntax ~= syn then
+    self.syntax = syn
+    self.highlighter:invalidate(1)
+  end
 end
 
 
@@ -69,7 +80,7 @@ function Doc:load(filename)
     table.insert(self.lines, "\n")
   end
   fp:close()
-  self.highlighter:reset_syntax()
+  self:reset_syntax()
 end
 
 
@@ -82,7 +93,7 @@ function Doc:save(filename)
   end
   fp:close()
   self.filename = filename or self.filename
-  self.highlighter:reset_syntax()
+  self:reset_syntax()
   self:clean()
 end
 

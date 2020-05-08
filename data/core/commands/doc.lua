@@ -221,7 +221,7 @@ local commands = {
   end,
 
   ["doc:toggle-line-comments"] = function()
-    local comment = doc().highlighter.syntax.comment
+    local comment = doc().syntax.comment
     if not comment then return end
     local comment_text = comment .. " "
     local line1, _, line2 = doc():get_selection(true)
