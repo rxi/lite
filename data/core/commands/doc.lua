@@ -3,7 +3,6 @@ local command = require "core.command"
 local common = require "core.common"
 local config = require "core.config"
 local translate = require "core.doc.translate"
-local search = require "core.doc.search"
 local DocView = require "core.docview"
 
 
@@ -25,25 +24,29 @@ local function get_indent_string()
 end
 
 
-local function insert_at_start_of_selected_lines(text)
+local function insert_at_start_of_selected_lines(text, skip_empty)
   local line1, col1, line2, col2, swap = doc():get_selection(true)
   for line = line1, line2 do
-    doc():insert(line, 1, text)
+    local line_text = doc().lines[line]
+    if (not skip_empty or line_text:find("%S")) then
+      doc():insert(line, 1, text)
+    end
   end
   doc():set_selection(line1, col1 + #text, line2, col2 + #text, swap)
 end
 
 
-local function remove_from_start_of_selected_lines(text)
+local function remove_from_start_of_selected_lines(text, skip_empty)
   local line1, col1, line2, col2, swap = doc():get_selection(true)
   for line = line1, line2 do
-    if doc().lines[line]:sub(1, #text) == text then
+    local line_text = doc().lines[line]
+    if  line_text:sub(1, #text) == text
+    and (not skip_empty or line_text:find("%S"))
+    then
       doc():remove(line, 1, line, #text + 1)
-      if line == line1 then col1 = col1 - #text end
-      if line == line2 then col2 = col2 - #text end
     end
   end
-  doc():set_selection(line1, col1, line2, col2, swap)
+  doc():set_selection(line1, col1 - #text, line2, col2 - #text, swap)
 end
 
 
@@ -218,21 +221,21 @@ local commands = {
   end,
 
   ["doc:toggle-line-comments"] = function()
-    if not doc().highlighter.syntax.comment then return end
-    local text = doc().highlighter.syntax.comment .. " "
+    local comment = doc().highlighter.syntax.comment
+    if not comment then return end
+    local comment_text = comment .. " "
     local line1, _, line2 = doc():get_selection(true)
     local uncomment = true
     for line = line1, line2 do
-      local str = doc().lines[line]:match("^[ \t]*(.*)$")
-      if str and str:sub(1, #text) ~= text then
+      local text = doc().lines[line]
+      if text:find("%S") and text:find(comment_text, 1, true) ~= 1 then
         uncomment = false
-        break
       end
     end
     if uncomment then
-      remove_from_start_of_selected_lines(text)
+      remove_from_start_of_selected_lines(comment_text, true)
     else
-      insert_at_start_of_selected_lines(text)
+      insert_at_start_of_selected_lines(comment_text, true)
     end
   end,
 
