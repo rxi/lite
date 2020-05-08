@@ -73,6 +73,9 @@ local function replace(kind, default, fn)
   core.command_view.doc:set_selection(math.huge, math.huge, 1, 1)
 
   core.command_view:enter("Find To Replace " .. kind, function(old)
+    core.command_view:set_text(old)
+    core.command_view.doc:set_selection(math.huge, math.huge, 1, 1)
+
     local s = string.format("Replace %s %q With", kind, old)
     core.command_view:enter(s, function(new)
       local n = doc():replace(function(text)
