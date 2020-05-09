@@ -23,7 +23,7 @@ The editor can be customized by making changes to the
 [user module](data/user/init.lua).
 
 ## Building
-You can build the project yourself on Linux using the provided `build.py`
+You can build the project yourself on Linux using the provided `build.sh`
 script. Note that the project does not need to be rebuilt if you are only making
 changes to the Lua portion of the code.
 
