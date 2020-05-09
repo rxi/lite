@@ -35,8 +35,7 @@ local function find(label, search_fn)
   local text = dv.doc:get_text(table.unpack(sel))
   local found = false
 
-  core.command_view:set_text(text)
-  core.command_view.doc:set_selection(math.huge, math.huge, 1, 1)
+  core.command_view:set_text(text, true)
 
   core.command_view:enter(label, function(text)
     if found then
@@ -69,12 +68,10 @@ end
 
 
 local function replace(kind, default, fn)
-  core.command_view:set_text(default)
-  core.command_view.doc:set_selection(math.huge, math.huge, 1, 1)
+  core.command_view:set_text(default, true)
 
   core.command_view:enter("Find To Replace " .. kind, function(old)
-    core.command_view:set_text(old)
-    core.command_view.doc:set_selection(math.huge, math.huge, 1, 1)
+    core.command_view:set_text(old, true)
 
     local s = string.format("Replace %s %q With", kind, old)
     core.command_view:enter(s, function(new)

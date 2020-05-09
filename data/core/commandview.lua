@@ -70,9 +70,12 @@ function CommandView:get_text()
 end
 
 
-function CommandView:set_text(text)
+function CommandView:set_text(text, select)
   self.doc:remove(1, 1, math.huge, math.huge)
   self.doc:text_input(text)
+  if select then
+    self.doc:set_selection(math.huge, math.huge, 1, 1)
+  end
 end
 
 

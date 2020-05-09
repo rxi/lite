@@ -278,6 +278,10 @@ local commands = {
     end)
   end,
 
+  ["doc:toggle-line-ending"] = function()
+    doc().crlf = not doc().crlf
+  end,
+
   ["doc:save-as"] = function()
     if doc().filename then
       core.command_view:set_text(doc().filename)
@@ -295,8 +299,20 @@ local commands = {
     end
   end,
 
-  ["doc:toggle-line-ending"] = function()
-    doc().crlf = not doc().crlf
+  ["doc:rename"] = function()
+    local old_filename = doc().filename
+    if not old_filename then
+      core.error("Cannot rename unsaved doc")
+      return
+    end
+    core.command_view:set_text(old_filename)
+    core.command_view:enter("Rename", function(filename)
+      doc():save(filename)
+      core.log("Renamed \"%s\" to \"%s\"", old_filename, filename)
+      if filename ~= old_filename then
+        os.remove(old_filename)
+      end
+    end, common.path_suggest)
   end,
 }
 
