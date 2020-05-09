@@ -88,7 +88,7 @@ local commands = {
   end,
 
   ["doc:paste"] = function()
-    doc():text_input(system.get_clipboard())
+    doc():text_input(system.get_clipboard():gsub("\r", ""))
   end,
 
   ["doc:newline"] = function()
