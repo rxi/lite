@@ -59,7 +59,7 @@ function Doc:reset_syntax()
   local syn = syntax.get(self.filename or "")
   if self.syntax ~= syn then
     self.syntax = syn
-    self.highlighter:invalidate(1)
+    self.highlighter:reset()
   end
 end
 

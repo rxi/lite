@@ -9,9 +9,7 @@ local Highlighter = Object:extend()
 
 function Highlighter:new(doc)
   self.doc = doc
-  self.lines = {}
-  self.first_invalid_line = 1
-  self.max_wanted_line = 0
+  self:reset()
 
   -- init incremental syntax highlighting
   core.add_thread(function()
@@ -39,6 +37,12 @@ function Highlighter:new(doc)
   end, self)
 end
 
+
+function Highlighter:reset()
+  self.lines = {}
+  self.first_invalid_line = 1
+  self.max_wanted_line = 0
+end
 
 function Highlighter:invalidate(idx)
   self.first_invalid_line = idx
