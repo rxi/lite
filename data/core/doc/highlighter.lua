@@ -10,20 +10,20 @@ local Highlighter = Object:extend()
 function Highlighter:new(doc)
   self.doc = doc
   self.lines = {}
-  self.last_valid_line = 1
+  self.first_invalid_line = 1
   self.max_wanted_line = 0
 
   -- init incremental syntax highlighting
   core.add_thread(function()
     while true do
-      if self.last_valid_line > self.max_wanted_line then
+      if self.first_invalid_line > self.max_wanted_line then
         self.max_wanted_line = 0
         coroutine.yield(1 / config.fps)
 
       else
-        local max = math.min(self.last_valid_line + 40, self.max_wanted_line)
+        local max = math.min(self.first_invalid_line + 40, self.max_wanted_line)
 
-        for i = self.last_valid_line, max do
+        for i = self.first_invalid_line, max do
           local state = (i > 1) and self.lines[i - 1].state
           local line = self.lines[i]
           if not (line and line.init_state == state) then
@@ -31,7 +31,7 @@ function Highlighter:new(doc)
           end
         end
 
-        self.last_valid_line = max + 1
+        self.first_invalid_line = max + 1
         core.redraw = true
         coroutine.yield()
       end
@@ -41,7 +41,8 @@ end
 
 
 function Highlighter:invalidate(idx)
-  self.last_valid_line = idx
+  self.first_invalid_line = idx
+  self.max_wanted_line = math.min(self.max_wanted_line, #self.doc.lines)
 end
 
 
@@ -60,7 +61,7 @@ function Highlighter:get_line(idx)
     local prev = self.lines[idx - 1]
     line = self:tokenize_line(idx, prev and prev.state)
     self.lines[idx] = line
-    self.last_valid_line = math.min(self.last_valid_line, idx)
+    self.first_invalid_line = math.min(self.first_invalid_line, idx)
   end
   self.max_wanted_line = math.max(self.max_wanted_line, idx)
   return line
