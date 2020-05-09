@@ -333,12 +333,13 @@ function core.step()
     elseif type == "textinput" and did_keymap then
       did_keymap = false
     else
-      did_keymap = core.on_event(type, a, b, c, d) or did_keymap
+      local _, res = core.try(core.on_event, type, a, b, c, d)
+      did_keymap = res or did_keymap
     end
     core.redraw = true
   end
   if mouse_moved then
-    core.on_event("mousemoved", mouse.x, mouse.y, mouse.dx, mouse.dy)
+    core.try(core.on_event, "mousemoved", mouse.x, mouse.y, mouse.dx, mouse.dy)
   end
 
   local width, height = renderer.get_size()
