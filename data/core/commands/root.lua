@@ -2,6 +2,7 @@ local core = require "core"
 local style = require "core.style"
 local DocView = require "core.docview"
 local command = require "core.command"
+local common = require "core.common"
 
 
 local t = {
@@ -42,6 +43,20 @@ local t = {
       table.remove(node.views, idx)
       table.insert(node.views, idx + 1, core.active_view)
     end
+  end,
+
+  ["root:shrink"] = function()
+    local node = core.root_view:get_active_node()
+    local parent = node:get_parent_node(core.root_view.root_node)
+    local n = (parent.a == node) and -0.1 or 0.1
+    parent.divider = common.clamp(parent.divider + n, 0.1, 0.9)
+  end,
+
+  ["root:grow"] = function()
+    local node = core.root_view:get_active_node()
+    local parent = node:get_parent_node(core.root_view.root_node)
+    local n = (parent.a == node) and 0.1 or -0.1
+    parent.divider = common.clamp(parent.divider + n, 0.1, 0.9)
   end,
 }
 
