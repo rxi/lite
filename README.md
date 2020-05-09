@@ -27,6 +27,8 @@ You can build the project yourself on Linux using the provided `build.sh`
 script. Note that the project does not need to be rebuilt if you are only making
 changes to the Lua portion of the code.
 
+Note that on Ubuntu you might need to install the `libsdl2-dev` package.
+
 ## Contributing
 Any additional functionality that can be added through a plugin should be done
 so as a plugin, after which a pull request to the
