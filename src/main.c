@@ -16,15 +16,9 @@ SDL_Window *window;
 
 
 static double get_scale(void) {
-  float dpi;
-  SDL_GetDisplayDPI(0, NULL, &dpi, NULL);
-#if _WIN32
-  return dpi / 96.0;
-#elif __APPLE__
-  return dpi / 72.0;
-#else
-  return 1.0;
-#endif
+	SDL_DisplayMode dm;
+	SDL_GetDesktopDisplayMode(0, &dm);
+	return dm.h / 786.0;
 }
 
 
