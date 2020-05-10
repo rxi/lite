@@ -123,6 +123,13 @@ top:
 }
 
 
+static int f_wait_event(lua_State *L) {
+  double n = luaL_checknumber(L, 1);
+  lua_pushboolean(L, SDL_WaitEventTimeout(NULL, n * 1000));
+  return 1;
+}
+
+
 static SDL_Cursor* cursor_cache[SDL_SYSTEM_CURSOR_HAND + 1];
 
 static const char *cursor_opts[] = {
@@ -339,6 +346,7 @@ static int f_fuzzy_match(lua_State *L) {
 
 static const luaL_Reg lib[] = {
   { "poll_event",          f_poll_event          },
+  { "wait_event",          f_wait_event          },
   { "set_cursor",          f_set_cursor          },
   { "set_window_title",    f_set_window_title    },
   { "set_window_mode",     f_set_window_mode     },

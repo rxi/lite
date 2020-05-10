@@ -347,7 +347,10 @@ function core.step()
   -- update
   core.root_view.size.x, core.root_view.size.y = width, height
   core.root_view:update()
-  if not core.redraw then return end
+  if not core.redraw then
+    if not system.window_has_focus() then system.wait_event(0.5) end
+    return
+  end
   core.redraw = false
 
   -- close unreferenced docs
