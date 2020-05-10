@@ -66,7 +66,6 @@ function Highlighter:get_line(idx)
     local prev = self.lines[idx - 1]
     line = self:tokenize_line(idx, prev and prev.state)
     self.lines[idx] = line
-    self.first_invalid_line = math.min(self.first_invalid_line, idx)
   end
   self.max_wanted_line = math.max(self.max_wanted_line, idx)
   return line
