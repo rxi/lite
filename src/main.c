@@ -21,7 +21,7 @@ static double get_scale(void) {
 #if _WIN32
   return dpi / 96.0;
 #elif __APPLE__
-  return dpi / 72.0;
+  return 1.0; /* dpi / 72.0; */
 #else
   return 1.0;
 #endif
