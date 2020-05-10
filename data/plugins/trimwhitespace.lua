@@ -17,7 +17,7 @@ end
 
 command.add("core.docview", {
   ["trim-whitespace:trim-trailing-whitespace"] = function()
-    trim_trailing_whitespace(self.active_view.doc)
+    trim_trailing_whitespace(core.active_view.doc)
   end,
 })
 
