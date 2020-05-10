@@ -16,9 +16,9 @@ SDL_Window *window;
 
 
 static double get_scale(void) {
-	SDL_DisplayMode dm;
-	SDL_GetDesktopDisplayMode(0, &dm);
-	return dm.h / 786.0;
+	float vdpi;
+	SDL_GetDisplayDPI(0, NULL, NULL, &vdpi);
+	return vdpi / 224.0;
 }
 
 
