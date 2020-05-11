@@ -1,0 +1,20 @@
+add_rules("mode.debug", "mode.release")
+add_requires("libsdl 2.x", "lua 5.2")
+target("lite")
+    set_kind("binary")
+    add_files("src/*.c", "src/api/*.c", "src/lib/stb/*.c")
+    if is_plat("windows", "mingw", "msys") then
+        add_files("res.rc")
+    end
+    add_packages("libsdl", "lua")
+    add_includedirs("src")
+    after_build(function (target)
+        os.tryrm(path.join(target:targetdir(), "data"))
+        os.cp("data", target:targetdir())
+    end)
+    on_package(function (target)
+        import("lib.detect.find_tool")
+        local zip = assert(find_tool("zip"), "zip not found!")
+        local argv = {path.join(target:targetdir(), "lite.zip"), target:targetfile(), path.join(target:targetdir(), "data")}
+        os.vrunv(zip.program, argv)
+    end)
