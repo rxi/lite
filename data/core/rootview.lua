@@ -408,9 +408,14 @@ function RootView:on_mouse_pressed(button, x, y, clicks)
   local node = self.root_node:get_child_overlapping_point(x, y)
   local idx = node:get_tab_overlapping_point(x, y)
   if idx then
+    local old_view = core.active_view
+    if old_view == node.views[idx] then old_view = nil end
     node:set_active_view(node.views[idx])
     if button == "middle" then
       node:close_active_view(self.root_node)
+      if old_view then
+        node:set_active_view(old_view)
+      end
     end
   else
     if node.active_view.focusable then
