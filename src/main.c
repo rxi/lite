@@ -41,7 +41,7 @@ static void get_exe_dir(char *buf, int sz) {
   unsigned size = sz;
   _NSGetExecutablePath(buf, &size);
 #else
-  strcpy(buf, ".")
+  strcpy(buf, ".");
 #endif
 
   for (int i = strlen(buf) - 1; i > 0; i--) {
