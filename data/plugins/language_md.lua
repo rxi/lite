@@ -6,6 +6,7 @@ syntax.add {
     { pattern = "\\.",                    type = "normal"   },
     { pattern = { "<!%-%-", "%-%->" },    type = "comment"  },
     { pattern = { "```", "```" },         type = "string"   },
+    { pattern = { "``", "``", "\\" },     type = "string"   },
     { pattern = { "`", "`", "\\" },       type = "string"   },
     { pattern = { "~~", "~~", "\\" },     type = "keyword2" },
     { pattern = "%-%-%-+",                type = "comment" },
