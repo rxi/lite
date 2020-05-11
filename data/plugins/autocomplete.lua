@@ -8,9 +8,22 @@ local translate = require "core.doc.translate"
 local RootView = require "core.rootview"
 local DocView = require "core.docview"
 
-local max_suggestions = 6
+config.autocomplete_max_suggestions = 6
 
-local symbols = {}
+local autocomplete = {}
+autocomplete.map = {}
+
+
+local mt = { __tostring = function(t) return t.text end }
+
+function autocomplete.add(t)
+  local items = {}
+  for text, info in pairs(t.items) do
+    info = (type(info) == "string") and info
+    table.insert(items, setmetatable({ text = text, info = info }, mt))
+  end
+  autocomplete.map[t.name] =  { files = t.files or ".*", items = items }
+end
 
 
 core.add_thread(function()
@@ -35,8 +48,9 @@ core.add_thread(function()
   end
 
   while true do
+    local symbols = {}
+
     -- lift all symbols from all docs
-    local t = {}
     for _, doc in ipairs(core.docs) do
       -- update the cache if the doc has changed since the last iteration
       if not cache_is_valid(doc) then
@@ -47,16 +61,13 @@ core.add_thread(function()
       end
       -- update symbol set with doc's symbol set
       for sym in pairs(cache[doc].symbols) do
-        t[sym] = true
+        symbols[sym] = true
       end
       coroutine.yield()
     end
 
     -- update symbols list
-    symbols = {}
-    for sym in pairs(t) do
-      table.insert(symbols, sym)
-    end
+    autocomplete.add { name = "open-docs", items = symbols }
 
     -- wait for next scan
     local valid = true
@@ -76,13 +87,39 @@ end)
 local partial = ""
 local suggestions_idx = 1
 local suggestions = {}
-local last_active_view
 local last_line, last_col
 
 
 local function reset_suggestions()
   suggestions_idx = 1
   suggestions = {}
+end
+
+
+local function update_suggestions()
+  local doc = core.active_view.doc
+  local filename = doc and doc.filename or ""
+
+  -- get all relevant suggestions for given filename
+  local items = {}
+  for _, v in pairs(autocomplete.map) do
+    if common.match_pattern(filename, v.files) then
+      for _, item in pairs(v.items) do
+        table.insert(items, item)
+      end
+    end
+  end
+
+  -- fuzzy match, remove duplicates and store
+  items = common.fuzzy_match(items, partial)
+  local j = 1
+  for i = 1, config.autocomplete_max_suggestions do
+    suggestions[i] = items[j]
+    while items[j] and items[i].text == items[j].text do
+      items[i].info = items[i].info or items[j].info
+      j = j + 1
+    end
+  end
 end
 
 
@@ -96,7 +133,6 @@ end
 
 local function get_active_view()
   if getmetatable(core.active_view) == DocView then
-    last_active_view = core.active_view
     return core.active_view
   end
 end
@@ -115,8 +151,12 @@ local function get_suggestions_rect(av)
   local th = font:get_height()
 
   local max_width = 0
-  for i, sym in ipairs(suggestions) do
-    max_width = math.max(max_width, font:get_width(sym))
+  for _, s in ipairs(suggestions) do
+    local w = font:get_width(s.text)
+    if s.info then
+      w = w + style.font:get_width(s.info) + style.padding.x
+    end
+    max_width = math.max(max_width, w)
   end
 
   return
@@ -134,12 +174,16 @@ local function draw_suggestions_box(av)
 
   -- draw text
   local font = av:get_font()
-  local th = font:get_height()
-  local x, y = rx + style.padding.x, ry + style.padding.y
-  for i, sym in ipairs(suggestions) do
+  local lh = font:get_height() + style.padding.y
+  local y = ry + style.padding.y / 2
+  for i, s in ipairs(suggestions) do
     local color = (i == suggestions_idx) and style.accent or style.text
-    renderer.draw_text(font, sym, x, y, color)
-    y = y + th + style.padding.y
+    common.draw_text(font, color, s.text, "left", rx + style.padding.x, y, rw, lh)
+    if s.info then
+      color = (i == suggestions_idx) and style.text or style.dim
+      common.draw_text(style.font, color, s.info, "right", rx, y, rw - style.padding.x, lh)
+    end
+    y = y + lh
   end
 end
 
@@ -158,10 +202,7 @@ RootView.on_text_input = function(...)
     -- update partial symbol and suggestions
     partial = get_partial_symbol()
     if #partial >= 3 then
-      local t = common.fuzzy_match(symbols, partial)
-      for i = 1, max_suggestions do
-        suggestions[i] = t[i]
-      end
+      update_suggestions()
       last_line, last_col = av.doc:get_selection()
     else
       reset_suggestions()
@@ -211,7 +252,7 @@ command.add(predicate, {
   ["autocomplete:complete"] = function()
     local doc = core.active_view.doc
     local line, col = doc:get_selection()
-    local text = suggestions[suggestions_idx]
+    local text = suggestions[suggestions_idx].text
     doc:insert(line, col, text)
     doc:remove(line, col, line, col - #partial)
     doc:set_selection(line, col + #text - #partial)
@@ -238,3 +279,6 @@ keymap.add {
   ["down"]   = "autocomplete:next",
   ["escape"] = "autocomplete:cancel",
 }
+
+
+return autocomplete
