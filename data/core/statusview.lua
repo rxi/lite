@@ -1,8 +1,10 @@
 local core = require "core"
 local common = require "core.common"
+local command = require "core.command"
 local config = require "core.config"
 local style = require "core.style"
 local DocView = require "core.docview"
+local LogView = require "core.logview"
 local View = require "core.view"
 
 
@@ -17,6 +19,14 @@ function StatusView:new()
   self.focusable = false
   self.message_timeout = 0
   self.message = {}
+end
+
+
+function StatusView:on_mouse_pressed()
+  if system.get_time() < self.message_timeout
+  and not core.active_view:is(LogView) then
+    command.perform "core:open-log"
+  end
 end
 
 
