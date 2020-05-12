@@ -79,6 +79,12 @@ command.add(nil, {
     end, common.path_suggest)
   end,
 
+  ["core:open-folder"] = function()
+    core.command_view:enter("Open Folder", function(text, item)
+      core.open_dir(text)
+    end, common.path_suggest)
+  end,
+
   ["core:open-log"] = function()
     local node = core.root_view:get_active_node()
     node:add_view(LogView())

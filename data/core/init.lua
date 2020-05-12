@@ -122,6 +122,16 @@ function core.init()
 end
 
 
+function core.open_dir(dirname)
+  -- set the new project_dir 
+  local info = system.get_file_info(dirname)
+  if info and info.type == "dir" then
+    core.project_dir = dirname:gsub("[\\/]$", "")
+    core.log_quiet(dirname and "Opened dir \"%s\"" or "Opened dir", dirname)
+  end
+end
+
+
 function core.quit(force)
   if force then
     os.exit()
@@ -307,10 +317,15 @@ function core.on_event(type, ...)
     core.root_view:on_mouse_wheel(...)
   elseif type == "filedropped" then
     local mx, my = core.root_view.mouse.x, core.root_view.mouse.y
-    local ok, doc = core.try(core.open_doc, select(1, ...))
-    if ok then
-      core.root_view:on_mouse_pressed("left", mx, my, 1)
-      core.root_view:open_doc(doc)
+    local info = system.get_file_info(select(1, ...))
+    if info and info.type == "file" then
+      local ok, doc = core.try(core.open_doc, select(1, ...))
+      if ok then
+        core.root_view:on_mouse_pressed("left", mx, my, 1)
+        core.root_view:open_doc(doc)
+      end
+    elseif info and info.type == "dir" then
+      core.try(core.open_dir, select(1, ...))
     end
   elseif type == "quit" then
     core.quit()
