@@ -1,4 +1,4 @@
-# lite
+# Litecode
 ![screenshot](https://user-images.githubusercontent.com/3920290/81471642-6c165880-91ea-11ea-8cd1-fae7ae8f0bc4.png)
 
 A lightweight text editor written in Lua
@@ -11,9 +11,7 @@ A lightweight text editor written in Lua
   themes
 
 ## Overview
-lite is a lightweight text editor written mostly in Lua — it aims to provide
-something practical, pretty, *small* and fast, implemented as simply as
-possible; easy to modify and extend, or to use without doing either.
+Litecode is a text editor designed to add new features and enhancements to Lite while remaining backwards-compatible.
 
 ## Customization
 Additional functionality can be added through plugins which are available from
