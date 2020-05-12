@@ -94,7 +94,7 @@ command.add(has_selection, {
     local l1, c1, l2, c2 = doc():get_selection(true)
     local text = doc():get_text(l1, c1, l2, c2)
     local l1, c1, l2, c2 = search.find(doc(), l2, c2, text, { wrap = true })
-    doc():set_selection(l2, c2, l1, c1)
+    if l2 then doc():set_selection(l2, c2, l1, c1) end
   end
 })
 
