@@ -202,6 +202,9 @@ function DocView:on_mouse_pressed(button, x, y, clicks)
     local line2, col2 = translate.end_of_word(self.doc, line, col)
     self.doc:set_selection(line2, col2, line1, col1)
   elseif clicks == 3 then
+    if line == #self.doc.lines then
+      self.doc:insert(math.huge, math.huge, "\n")
+    end
     self.doc:set_selection(line + 1, 1, line, 1)
   else
     self.doc:set_selection(line, col)
