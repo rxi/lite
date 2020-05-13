@@ -82,6 +82,7 @@ function keymap.on_key_released(k)
   end
 end
 
+
 keymap.add {
   ["ctrl+shift+p"] = "core:command-finder",
   ["ctrl+p"] = "core:file-finder",
