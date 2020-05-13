@@ -2,6 +2,7 @@ local core = require "core"
 local common = require "core.common"
 local config = require "core.config"
 local style = require "core.style"
+local keymap = require "core.keymap"
 local translate = require "core.doc.translate"
 local View = require "core.view"
 
@@ -207,7 +208,11 @@ function DocView:on_mouse_pressed(button, x, y, clicks)
     end
     self.doc:set_selection(line + 1, 1, line, 1)
   else
-    self.doc:set_selection(line, col)
+    local line2, col2
+    if keymap.modkeys["shift"] then
+      line2, col2 = select(3, self.doc:get_selection())
+    end
+    self.doc:set_selection(line, col, line2, col2)
     self.mouse_selecting = true
   end
   self.blink_timer = 0
