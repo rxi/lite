@@ -82,13 +82,13 @@ function keymap.on_key_released(k)
   end
 end
 
-
 keymap.add {
   ["ctrl+shift+p"] = "core:command-finder",
   ["ctrl+p"] = "core:file-finder",
   ["ctrl+o"] = "core:open-file",
   ["ctrl+n"] = "core:new-doc",
   ["alt+return"] = "core:toggle-fullscreen",
+  ["alt+keypad enter"] = "core:toggle-fullscreen",
 
   ["alt+shift+j"] = "root:split-left",
   ["alt+shift+l"] = "root:split-right",
@@ -139,8 +139,11 @@ keymap.add {
   ["ctrl+delete"] = "doc:delete-to-next-word-boundary",
   ["ctrl+shift+delete"] = "doc:delete-to-next-word-boundary",
   ["return"] = { "command:submit", "doc:newline" },
+  ["keypad enter"] = { "command:submit", "doc:newline" },
   ["ctrl+return"] = "doc:newline-below",
+  ["ctrl+keypad enter"] = "doc:newline-below",
   ["ctrl+shift+return"] = "doc:newline-above",
+  ["ctrl+shift+keypad enter"] = "doc:newline-above",
   ["ctrl+j"] = "doc:join-lines",
   ["ctrl+a"] = "doc:select-all",
   ["ctrl+d"] = { "find-replace:select-next", "doc:select-word" },
