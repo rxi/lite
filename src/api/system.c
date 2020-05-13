@@ -318,6 +318,24 @@ static int f_sleep(lua_State *L) {
 }
 
 
+static int f_exec(lua_State *L) {
+  size_t len;
+  const char *cmd = luaL_checklstring(L, 1, &len);
+  char *buf = malloc(len + 16);
+  if (!buf) { luaL_error(L, "buffer allocation failed"); }
+#if _WIN32
+  sprintf(buf, "cmd /c %s", cmd);
+  WinExec(buf, SW_HIDE);
+#else
+  sprintf(buf, "%s &", cmd);
+  int res = system(buf);
+  (void) res;
+#endif
+  free(buf);
+  return 0;
+}
+
+
 static int f_fuzzy_match(lua_State *L) {
   const char *str = luaL_checkstring(L, 1);
   const char *ptn = luaL_checkstring(L, 2);
@@ -359,6 +377,7 @@ static const luaL_Reg lib[] = {
   { "set_clipboard",       f_set_clipboard       },
   { "get_time",            f_get_time            },
   { "sleep",               f_sleep               },
+  { "exec",                f_exec                },
   { "fuzzy_match",         f_fuzzy_match         },
   { NULL, NULL }
 };
