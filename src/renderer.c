@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <assert.h>
 #include <math.h>
 #include "lib/stb/stb_truetype.h"
@@ -65,6 +66,11 @@ void ren_init(SDL_Window *win) {
 
 void ren_update_rects(RenRect *rects, int count) {
   SDL_UpdateWindowSurfaceRects(window, (SDL_Rect*) rects, count);
+  static bool initial_frame = true;
+  if (initial_frame) {
+    SDL_ShowWindow(window);
+    initial_frame = false;
+  }
 }
 
 
