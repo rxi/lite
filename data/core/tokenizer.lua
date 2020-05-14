@@ -42,6 +42,10 @@ function tokenizer.tokenize(syntax, text, state)
   local res = {}
   local i = 1
 
+  if #syntax.patterns == 0 then
+    return { "normal", text }
+  end
+
   while i <= #text do
     -- continue trying to match the end pattern of a pair if we have a state set
     if state then
