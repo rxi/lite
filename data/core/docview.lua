@@ -330,7 +330,7 @@ function DocView:draw_line_gutter(idx, x, y)
     color = style.line_number2
   end
   local yoffset = self:get_line_text_y_offset()
-  x = style.padding.x
+  x = x + style.padding.x
   renderer.draw_text(self:get_font(), idx, x, y + yoffset, color)
 end
 
