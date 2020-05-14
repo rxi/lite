@@ -330,7 +330,7 @@ function DocView:draw_line_gutter(idx, x, y)
     color = style.line_number2
   end
   local yoffset = self:get_line_text_y_offset()
-  x = x + self.scroll.x
+  x = style.padding.x
   renderer.draw_text(self:get_font(), idx, x, y + yoffset, color)
 end
 
@@ -345,7 +345,7 @@ function DocView:draw()
   local lh = self:get_line_height()
 
   local _, y = self:get_line_screen_position(minline)
-  local x = self:get_content_offset() + style.padding.x
+  local x = self.position.x
   for i = minline, maxline do
     self:draw_line_gutter(i, x, y)
     y = y + lh
