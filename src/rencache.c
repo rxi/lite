@@ -119,6 +119,7 @@ void rencache_set_clip_rect(RenRect rect) {
 
 
 void rencache_draw_rect(RenRect rect, RenColor color) {
+  if (!rects_overlap(screen_rect, rect)) { return; }
   Command *cmd = push_command(DRAW_RECT, sizeof(Command));
   cmd->rect = rect;
   cmd->color = color;
@@ -126,16 +127,22 @@ void rencache_draw_rect(RenRect rect, RenColor color) {
 
 
 int rencache_draw_text(RenFont *font, const char *text, int x, int y, RenColor color) {
-  int sz = strlen(text) + 1;
-  Command *cmd = push_command(DRAW_TEXT, sizeof(Command) + sz);
-  memcpy(cmd->text, text, sz);
-  cmd->color = color;
-  cmd->font = font;
-  cmd->rect.x = x;
-  cmd->rect.y = y;
-  cmd->rect.width = ren_get_font_width(font, text);
-  cmd->rect.height = ren_get_font_height(font);
-  return x + cmd->rect.width;
+  RenRect rect;
+  rect.x = x;
+  rect.y = y;
+  rect.width = ren_get_font_width(font, text);
+  rect.height = ren_get_font_height(font);
+
+  if (rects_overlap(screen_rect, rect)) {
+    int sz = strlen(text) + 1;
+    Command *cmd = push_command(DRAW_TEXT, sizeof(Command) + sz);
+    memcpy(cmd->text, text, sz);
+    cmd->color = color;
+    cmd->font = font;
+    cmd->rect = rect;
+  }
+
+  return x + rect.width;
 }
 
 
