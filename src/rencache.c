@@ -78,13 +78,13 @@ static RenRect merge_rects(RenRect a, RenRect b) {
 
 static Command* push_command(int type, int size) {
   Command *cmd = (Command*) (command_buf + command_buf_idx);
-  memset(cmd, 0, sizeof(Command));
   int n = command_buf_idx + size;
   if (n > COMMAND_BUF_SIZE) {
-    fprintf(stderr, "Fatal error in " __FILE__ ": exhausted command buffer\n");
-    exit(EXIT_FAILURE);
+    fprintf(stderr, "Warning: (" __FILE__ "): exhausted command buffer\n");
+    return NULL;
   }
   command_buf_idx = n;
+  memset(cmd, 0, sizeof(Command));
   cmd->type = type;
   cmd->size = size;
   return cmd;
@@ -121,8 +121,10 @@ void rencache_set_clip_rect(RenRect rect) {
 void rencache_draw_rect(RenRect rect, RenColor color) {
   if (!rects_overlap(screen_rect, rect)) { return; }
   Command *cmd = push_command(DRAW_RECT, sizeof(Command));
-  cmd->rect = rect;
-  cmd->color = color;
+  if (cmd) {
+    cmd->rect = rect;
+    cmd->color = color;
+  }
 }
 
 
@@ -136,10 +138,12 @@ int rencache_draw_text(RenFont *font, const char *text, int x, int y, RenColor c
   if (rects_overlap(screen_rect, rect)) {
     int sz = strlen(text) + 1;
     Command *cmd = push_command(DRAW_TEXT, sizeof(Command) + sz);
-    memcpy(cmd->text, text, sz);
-    cmd->color = color;
-    cmd->font = font;
-    cmd->rect = rect;
+    if (cmd) {
+      memcpy(cmd->text, text, sz);
+      cmd->color = color;
+      cmd->font = font;
+      cmd->rect = rect;
+    }
   }
 
   return x + rect.width;
