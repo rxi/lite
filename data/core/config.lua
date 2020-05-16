@@ -4,7 +4,7 @@ config.project_scan_rate = 5
 config.fps = 60
 config.max_log_items = 80
 config.message_timeout = 3
-config.mouse_wheel_scroll = 50
+config.mouse_wheel_scroll = 50 * SCALE
 config.file_size_limit = 10
 config.symbol_pattern = "[%a_][%w_]*"
 config.non_word_chars = " \t\n/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-"
