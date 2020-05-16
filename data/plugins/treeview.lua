@@ -6,9 +6,7 @@ local keymap = require "core.keymap"
 local style = require "core.style"
 local View = require "core.view"
 
-
-local TreeView = View:extend()
-
+config.treeview_size = 200 * SCALE
 
 local function get_depth(filename)
   local n = 0
@@ -18,6 +16,8 @@ local function get_depth(filename)
   return n
 end
 
+
+local TreeView = View:extend()
 
 function TreeView:new()
   TreeView.super.new(self)
