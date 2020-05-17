@@ -28,7 +28,7 @@ static double get_scale(void) {
 }
 
 
-static void get_exe_dir(char *buf, int sz) {
+static void get_exe_filename(char *buf, int sz) {
 #if _WIN32
   int len = GetModuleFileName(NULL, buf, sz - 1);
   buf[len] = '\0';
@@ -41,15 +41,8 @@ static void get_exe_dir(char *buf, int sz) {
   unsigned size = sz;
   _NSGetExecutablePath(buf, &size);
 #else
-  strcpy(buf, ".");
+  strcpy(buf, "./lite");
 #endif
-
-  for (int i = strlen(buf) - 1; i > 0; i--) {
-    if (buf[i] == '/' || buf[i] == '\\') {
-      buf[i] = '\0';
-      break;
-    }
-  }
 }
 
 
@@ -116,10 +109,10 @@ int main(int argc, char **argv) {
   lua_pushnumber(L, get_scale());
   lua_setglobal(L, "SCALE");
 
-  char exedir[2048];
-  get_exe_dir(exedir, sizeof(exedir));
-  lua_pushstring(L, exedir);
-  lua_setglobal(L, "EXEDIR");
+  char exename[2048];
+  get_exe_filename(exename, sizeof(exename));
+  lua_pushstring(L, exename);
+  lua_setglobal(L, "EXEFILE");
 
 
   (void) luaL_dostring(L,
@@ -127,6 +120,7 @@ int main(int argc, char **argv) {
     "xpcall(function()\n"
     "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
     "  PATHSEP = package.config:sub(1, 1)\n"
+    "  EXEDIR = EXEFILE:match(\"^(.-)[^/\\\\]*$\")"
     "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
     "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
     "  core = require('core')\n"
