@@ -1,4 +1,5 @@
 require "core.strict"
+local common = require "core.common"
 local config = require "core.config"
 local style = require "core.style"
 local command
@@ -34,7 +35,7 @@ local function project_scan_thread()
     local dirs, files = {}, {}
 
     for _, file in ipairs(all) do
-      if not file:find("^%.") then
+      if not common.match_pattern(file, config.ignore_files) then
         local file = path .. PATHSEP .. file
         local info = system.get_file_info(file)
         if info and info.size < size_limit then
