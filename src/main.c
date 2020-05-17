@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
     "xpcall(function()\n"
     "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
     "  PATHSEP = package.config:sub(1, 1)\n"
-    "  EXEDIR = EXEFILE:match(\"^(.-)[^/\\\\]*$\")"
+    "  EXEDIR = EXEFILE:match(\"^(.+)[/\\\\].*$\")\n"
     "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
     "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
     "  core = require('core')\n"
