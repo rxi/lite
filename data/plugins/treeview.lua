@@ -141,7 +141,6 @@ end
 function TreeView:draw()
   self:draw_background(style.background2)
 
-  local h = self:get_item_height()
   local icon_width = style.icon_font:get_width("D")
   local spacing = style.font:get_width(" ") * 2
   local root_depth = get_depth(core.project_dir) + 1
