@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include "api.h"
@@ -216,6 +217,14 @@ static int f_show_confirm_dialog(lua_State *L) {
 }
 
 
+static int f_chdir(lua_State *L) {
+  const char *path = luaL_checkstring(L, 1);
+  int err = chdir(path);
+  if (err) { luaL_error(L, "chdir() failed"); }
+  return 0;
+}
+
+
 static int f_list_dir(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
 
@@ -370,6 +379,7 @@ static const luaL_Reg lib[] = {
   { "set_window_mode",     f_set_window_mode     },
   { "window_has_focus",    f_window_has_focus    },
   { "show_confirm_dialog", f_show_confirm_dialog },
+  { "chdir",               f_chdir               },
   { "list_dir",            f_list_dir            },
   { "absolute_path",       f_absolute_path       },
   { "get_file_info",       f_get_file_info       },

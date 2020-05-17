@@ -36,7 +36,7 @@ local function project_scan_thread()
 
     for _, file in ipairs(all) do
       if not common.match_pattern(file, config.ignore_files) then
-        local file = path .. PATHSEP .. file
+        local file = (path ~= "." and path .. PATHSEP or "") .. file
         local info = system.get_file_info(file)
         if info and info.size < size_limit then
           info.filename = file
@@ -62,7 +62,7 @@ local function project_scan_thread()
   while true do
     -- get project files and replace previous table if the new table is
     -- different
-    local t = get_files(core.project_dir)
+    local t = get_files(".")
     if diff_files(core.project_files, t) then
       core.project_files = t
       core.redraw = true
@@ -88,12 +88,6 @@ function core.init()
   core.docs = {}
   core.threads = setmetatable({}, { __mode = "k" })
   core.project_files = {}
-  core.project_dir = "."
-
-  local info = ARGS[2] and system.get_file_info(ARGS[2])
-  if info and info.type == "dir" then
-    core.project_dir = ARGS[2]:gsub("[\\/]$", "")
-  end
 
   core.root_view = RootView()
   core.command_view = CommandView()
@@ -120,6 +114,9 @@ function core.init()
   if got_plugin_error or got_user_error or got_project_error then
     command.perform("core:open-log")
   end
+
+  local info = ARGS[2] and system.get_file_info(ARGS[2])
+  system.chdir(info and info.type == "dir" and ARGS[2] or ".")
 end
 
 
@@ -166,7 +163,7 @@ end
 
 
 function core.load_project_module()
-  local filename = core.project_dir .. "/.lite_project.lua"
+  local filename = ".lite_project.lua"
   if system.get_file_info(filename) then
     return core.try(function()
       local fn, err = loadfile(filename)
