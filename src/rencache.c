@@ -108,13 +108,13 @@ void rencache_show_debug(bool enable) {
 
 void rencache_free_font(RenFont *font) {
   Command *cmd = push_command(FREE_FONT, sizeof(Command));
-  cmd->font = font;
+  if (cmd) { cmd->font = font; }
 }
 
 
 void rencache_set_clip_rect(RenRect rect) {
   Command *cmd = push_command(SET_CLIP, sizeof(Command));
-  cmd->rect = intersect_rects(rect, screen_rect);
+  if (cmd) { cmd->rect = intersect_rects(rect, screen_rect); }
 }
 
 
