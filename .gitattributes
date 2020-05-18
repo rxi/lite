@@ -1,3 +1,2 @@
-winlib/*  linguist-vendored
 src/lib/* linguist-vendored
-icon.inl  linguist-vendored
+res/icon.inl  linguist-vendored

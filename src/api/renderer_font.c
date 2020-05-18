@@ -5,7 +5,7 @@
 
 static int f_load(lua_State *L) {
   const char *filename  = luaL_checkstring(L, 1);
-  float size = luaL_checknumber(L, 2);
+  float size = (float)luaL_checknumber(L, 2);
   RenFont **self = lua_newuserdata(L, sizeof(*self));
   luaL_setmetatable(L, API_TYPE_FONT);
   *self = ren_load_font(filename, size);
@@ -16,7 +16,7 @@ static int f_load(lua_State *L) {
 
 static int f_set_tab_width(lua_State *L) {
   RenFont **self = luaL_checkudata(L, 1, API_TYPE_FONT);
-  int n = luaL_checknumber(L, 2);
+  int n = (int)luaL_checknumber(L, 2);
   ren_set_font_tab_width(*self, n);
   return 0;
 }

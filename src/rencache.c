@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "rencache.h"
 
 /* a cache over the software renderer -- all drawing operations are stored as
@@ -32,9 +33,12 @@ static int command_buf_idx;
 static RenRect screen_rect;
 static bool show_debug;
 
-
+#ifndef min
 static inline int min(int a, int b) { return a < b ? a : b; }
+#endif
+#ifndef max
 static inline int max(int a, int b) { return a > b ? a : b; }
+#endif
 
 /* 32bit fnv-1a hash */
 #define HASH_INITIAL 2166136261
@@ -136,7 +140,7 @@ int rencache_draw_text(RenFont *font, const char *text, int x, int y, RenColor c
   rect.height = ren_get_font_height(font);
 
   if (rects_overlap(screen_rect, rect)) {
-    int sz = strlen(text) + 1;
+    int sz = (int)strlen(text) + 1;
     Command *cmd = push_command(DRAW_TEXT, sizeof(Command) + sz);
     if (cmd) {
       memcpy(cmd->text, text, sz);

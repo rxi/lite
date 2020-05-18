@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 #include "lib/stb/stb_truetype.h"
 #include "renderer.h"
 
@@ -134,10 +135,10 @@ retry:
   int ascent, descent, linegap;
   stbtt_GetFontVMetrics(&font->stbfont, &ascent, &descent, &linegap);
   float scale = stbtt_ScaleForMappingEmToPixels(&font->stbfont, font->size);
-  int scaled_ascent = ascent * scale + 0.5;
+  int scaled_ascent = (int)(ascent * scale + 0.5);
   for (int i = 0; i < 256; i++) {
     set->glyphs[i].yoff += scaled_ascent;
-    set->glyphs[i].xadvance = floor(set->glyphs[i].xadvance);
+    set->glyphs[i].xadvance = (float)floor(set->glyphs[i].xadvance);
   }
 
   /* convert 8bit data to 32bit */
@@ -174,7 +175,7 @@ RenFont* ren_load_font(const char *filename, float size) {
   fseek(fp, 0, SEEK_END); int buf_size = ftell(fp); fseek(fp, 0, SEEK_SET);
   /* load */
   font->data = check_alloc(malloc(buf_size));
-  int _ = fread(font->data, 1, buf_size, fp); (void) _;
+  size_t _ = fread(font->data, 1, buf_size, fp); (void) _;
   fclose(fp);
   fp = NULL;
 
@@ -186,7 +187,7 @@ RenFont* ren_load_font(const char *filename, float size) {
   int ascent, descent, linegap;
   stbtt_GetFontVMetrics(&font->stbfont, &ascent, &descent, &linegap);
   float scale = stbtt_ScaleForMappingEmToPixels(&font->stbfont, size);
-  font->height = (ascent - descent + linegap) * scale + 0.5;
+  font->height = (int)((ascent - descent + linegap) * scale + 0.5);
 
   /* make tab and newline glyphs invisible */
   stbtt_bakedchar *g = get_glyphset(font, '\n')->glyphs;
@@ -218,7 +219,7 @@ void ren_free_font(RenFont *font) {
 
 void ren_set_font_tab_width(RenFont *font, int n) {
   GlyphSet *set = get_glyphset(font, '\t');
-  set->glyphs['\t'].xadvance = n;
+  set->glyphs['\t'].xadvance = (float)n;
 }
 
 
@@ -230,7 +231,7 @@ int ren_get_font_width(RenFont *font, const char *text) {
     p = utf8_to_codepoint(p, &codepoint);
     GlyphSet *set = get_glyphset(font, codepoint);
     stbtt_bakedchar *g = &set->glyphs[codepoint & 0xff];
-    x += g->xadvance;
+    x += (int)g->xadvance;
   }
   return x;
 }
@@ -339,8 +340,8 @@ int ren_draw_text(RenFont *font, const char *text, int x, int y, RenColor color)
     rect.y = g->y0;
     rect.width = g->x1 - g->x0;
     rect.height = g->y1 - g->y0;
-    ren_draw_image(set->image, &rect, x + g->xoff, y + g->yoff, color);
-    x += g->xadvance;
+    ren_draw_image(set->image, &rect, x + (int)g->xoff, y + (int)g->yoff, color);
+    x += (int)g->xadvance;
   }
   return x;
 }

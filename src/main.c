@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "api/api.h"
 #include "renderer.h"
 
@@ -47,8 +47,7 @@ static void get_exe_filename(char *buf, int sz) {
 
 
 static void init_window_icon(void) {
-#ifndef _WIN32
-  #include "../icon.inl"
+  #include <icon.inl>
   (void) icon_rgba_len; /* unused */
   SDL_Surface *surf = SDL_CreateRGBSurfaceFrom(
     icon_rgba, 64, 64,
@@ -59,7 +58,6 @@ static void init_window_icon(void) {
     0xff000000);
   SDL_SetWindowIcon(window, surf);
   SDL_FreeSurface(surf);
-#endif
 }
 
 
@@ -82,7 +80,7 @@ int main(int argc, char **argv) {
   SDL_GetCurrentDisplayMode(0, &dm);
 
   window = SDL_CreateWindow(
-    "", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, dm.w * 0.8, dm.h * 0.8,
+    "", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, (int)(dm.w * 0.8), (int)(dm.h * 0.8),
     SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_HIDDEN);
   init_window_icon();
   ren_init(window);

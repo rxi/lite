@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -134,7 +134,7 @@ top:
 
 static int f_wait_event(lua_State *L) {
   double n = luaL_checknumber(L, 1);
-  lua_pushboolean(L, SDL_WaitEventTimeout(NULL, n * 1000));
+  lua_pushboolean(L, SDL_WaitEventTimeout(NULL, (int)(n * 1000)));
   return 1;
 }
 
@@ -286,7 +286,7 @@ static int f_get_file_info(lua_State *L) {
   }
 
   lua_newtable(L);
-  lua_pushnumber(L, s.st_mtime);
+  lua_pushnumber(L, (lua_Number)s.st_mtime);
   lua_setfield(L, -2, "modified");
 
   lua_pushnumber(L, s.st_size);
@@ -330,7 +330,7 @@ static int f_get_time(lua_State *L) {
 
 static int f_sleep(lua_State *L) {
   double n = luaL_checknumber(L, 1);
-  SDL_Delay(n * 1000);
+  SDL_Delay((Uint32)(n * 1000));
   return 0;
 }
 
@@ -374,7 +374,7 @@ static int f_fuzzy_match(lua_State *L) {
   }
   if (*ptn) { return 0; }
 
-  lua_pushnumber(L, score - (int) strlen(str));
+  lua_pushnumber(L, (int)(score - strlen(str)));
   return 1;
 }
 

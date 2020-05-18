@@ -23,16 +23,37 @@ The editor can be customized by making changes to the
 [user module](data/user/init.lua).
 
 ## Building
-You can build the project yourself on Linux using the provided `build.sh`
-script. Note that the project does not need to be rebuilt if you are only making
-changes to the Lua portion of the code.
+You can build the project yourself using [CMake](https://www.cmake.org/) and your
+preferred toolchain.
+
+Note that this requires development libraries for [SDL2](https://www.libsdl.org/).
+Also keep in mind that the project does not need to be rebuilt if you are only
+making changes to the Lua portion of the code.
+
+To generate build files for your default toolchain, just invoke CMake from your
+preferred build directory and pass the path to the source:
+
+    cmake path/to/lite-source
+
+On Windows you might have to set the path to your SDL2 files as well:
+
+    cmake -DSDL2_PATH=path/to/sdl2 path/to/lite-source
+
+Once done, you can invoke `make`, open the generated project files, or directly
+build utilizing CMake:
+
+    cmake --build . --config Release --target all
+
+To install lite, simply build the `install` target. The destination directory is
+set using the CMake variable `CMAKE_INSTALL_PREFIX`.
 
 ## Contributing
 Any additional functionality that can be added through a plugin should be done
 so as a plugin, after which a pull request to the
-[plugins repository](https://github.com/rxi/lite-plugins) can be made. In hopes
-of remaining lightweight, pull requests adding additional functionality to the
-core will likely not be merged. Bug reports and bug fixes are welcome.
+[plugins repository](https://github.com/rxi/lite-plugins) can be made.
+
+In hopes of remaining lightweight, pull requests adding additional functionality
+to the core will likely not be merged. Bug reports and bug fixes are welcome.
 
 ## License
 This project is free software; you can redistribute it and/or modify it under
