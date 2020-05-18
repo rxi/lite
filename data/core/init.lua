@@ -12,6 +12,11 @@ local Doc
 local core = {}
 
 
+-- the following line has been added for temporary backwards-compatibility with
+-- plugins. on the 1.05 release this will be removed:
+core.project_dir = "."
+
+
 local function project_scan_thread()
   local function diff_files(a, b)
     if #a ~= #b then return true end
