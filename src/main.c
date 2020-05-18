@@ -138,6 +138,10 @@ int main(int argc, char **argv) {
 
   lua_close(L);
   SDL_DestroyWindow(window);
-
+  
+#ifdef _WIN32
+  FreeLibrary(lib);
+#endif
+  
   return EXIT_SUCCESS;
 }
