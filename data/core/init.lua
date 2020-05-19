@@ -100,7 +100,6 @@ function core.init()
 
   core.root_view.root_node:split("down", core.command_view, true)
   core.root_view.root_node.b:split("down", core.status_view, true)
-  core.active_view = core.root_view.root_node.a.active_view
 
   core.add_thread(project_scan_thread)
   command.add_defaults()
@@ -188,6 +187,15 @@ function core.reload_module(name)
   if type(old) == "table" then
     for k, v in pairs(new) do old[k] = v end
     package.loaded[name] = old
+  end
+end
+
+
+function core.set_active_view(view)
+  assert(view, "Tried to set active view to nil")
+  if view ~= core.active_view then
+    core.last_active_view = core.active_view
+    core.active_view = view
   end
 end
 
