@@ -204,6 +204,16 @@ function ResultsView:draw()
 end
 
 
+local function set_selected_text()
+  local dv = core.active_view
+  if dv.doc then
+    local sel = { dv.doc:get_selection() }
+    local text = dv.doc:get_text(table.unpack(sel))
+    core.command_view:set_text(text, true)
+  end
+end
+
+
 local function begin_search(text, fn)
   if text == "" then
     core.error("Expected non-empty string")
@@ -216,6 +226,7 @@ end
 
 command.add(nil, {
   ["project-search:find"] = function()
+    set_selected_text()
     core.command_view:enter("Find Text In Project", function(text)
       text = text:lower()
       begin_search(text, function(line_text)
@@ -225,12 +236,14 @@ command.add(nil, {
   end,
 
   ["project-search:find-pattern"] = function()
+    set_selected_text()
     core.command_view:enter("Find Pattern In Project", function(text)
       begin_search(text, function(line_text) return line_text:find(text) end)
     end)
   end,
 
   ["project-search:fuzzy-find"] = function()
+    set_selected_text()
     core.command_view:enter("Fuzzy Find Text In Project", function(text)
       begin_search(text, function(line_text)
         return common.fuzzy_match(line_text, text) and 1
