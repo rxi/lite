@@ -317,8 +317,8 @@ function core.on_event(type, ...)
   elseif type == "mousewheel" then
     core.root_view:on_mouse_wheel(...)
   elseif type == "filedropped" then
-    local mx, my = core.root_view.mouse.x, core.root_view.mouse.y
-    local ok, doc = core.try(core.open_doc, select(1, ...))
+    local filename, mx, my = ...
+    local ok, doc = core.try(core.open_doc, filename)
     if ok then
       local node = core.root_view.root_node:get_child_overlapping_point(mx, my)
       node:set_active_view(node.active_view)

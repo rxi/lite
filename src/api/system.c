@@ -36,6 +36,7 @@ static char* key_name(char *dst, int sym) {
 
 static int f_poll_event(lua_State *L) {
   char buf[16];
+  int mx, my, wx, wy;
   SDL_Event e;
 
 top:
@@ -66,10 +67,14 @@ top:
       goto top;
 
     case SDL_DROPFILE:
+      SDL_GetGlobalMouseState(&mx, &my);
+      SDL_GetWindowPosition(window, &wx, &wy);
       lua_pushstring(L, "filedropped");
       lua_pushstring(L, e.drop.file);
+      lua_pushnumber(L, mx - wx);
+      lua_pushnumber(L, my - wy);
       SDL_free(e.drop.file);
-      return 2;
+      return 4;
 
     case SDL_KEYDOWN:
       lua_pushstring(L, "keypressed");
