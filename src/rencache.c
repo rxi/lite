@@ -150,6 +150,11 @@ int rencache_draw_text(RenFont *font, const char *text, int x, int y, RenColor c
 }
 
 
+void rencache_invalidate(void) {
+  memset(cells_prev, 0xff, sizeof(cells_buf1));
+}
+
+
 void rencache_begin_frame(void) {
   /* reset all cells if the screen width/height has changed */
   int w, h;
@@ -157,7 +162,7 @@ void rencache_begin_frame(void) {
   if (screen_rect.width != w || h != screen_rect.height) {
     screen_rect.width = w;
     screen_rect.height = h;
-    memset(cells_prev, 0xff, sizeof(cells_buf1));
+    rencache_invalidate();
   }
 }
 

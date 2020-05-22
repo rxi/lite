@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include "api.h"
+#include "rencache.h"
 #ifdef _WIN32
   #include <windows.h>
 #endif
@@ -56,7 +57,9 @@ top:
         lua_pushnumber(L, e.window.data2);
         return 3;
       } else if (e.window.event == SDL_WINDOWEVENT_EXPOSED) {
-        SDL_UpdateWindowSurface(window);
+        rencache_invalidate();
+        lua_pushstring(L, "exposed");
+        return 1;
       }
       /* on some systems, when alt-tabbing to the window SDL will queue up
       ** several KEYDOWN events for the `tab` key; we flush all keydown
