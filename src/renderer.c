@@ -8,7 +8,9 @@
 #define MAX_GLYPHSET 256
 
 struct RenImage {
-  RenColor *pixels;
+  //RenColor *pixels;
+  SDL_Surface *surface;
+  SDL_Texture *texture;
   int width, height;
 };
 
@@ -27,7 +29,13 @@ struct RenFont {
 
 
 static SDL_Window *window;
-static struct { int left, top, right, bottom; } clip;
+//static struct { int left, top, right, bottom; } clip;
+static SDL_Renderer *renderer;
+static SDL_Texture *target_texture;
+static SDL_Texture *buffer_texture;
+static int texture_format;
+static double scale = 1.0;
+int fb_w, fb_h;
 
 
 static void* check_alloc(void *ptr) {
@@ -55,37 +63,91 @@ static const char* utf8_to_codepoint(const char *p, unsigned *dst) {
   return p + 1;
 }
 
+//   float dpi;
+//   SDL_GetDisplayDPI(0, NULL, &dpi, NULL);
+//   printf("dpi: %f, %f\n", dpi, dpi / 96.0);
+// #if _WIN32
+//   return dpi / 96.0;
+// #elif __APPLE__
+//   SDL_DisplayMode dm;
+//   SDL_GetDesktopDisplayMode(0, &dm);
+//   printf("dm.h: %d, %f\n", dm.h, dm.h / 786.0);
+//   // return dm.h / 786.0;
+//   return 2.0;
+// #else
+//   return 1.0;
+// #endif
+
+double ren_get_scale() {
+  return scale;
+}
 
 void ren_init(SDL_Window *win) {
   assert(win);
   window = win;
-  SDL_Surface *surf = SDL_GetWindowSurface(window);
-  ren_set_clip_rect( (RenRect) { 0, 0, surf->w, surf->h } );
+
+  renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+  assert(renderer != NULL);
+
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+  SDL_RendererInfo info;
+  SDL_GetRendererInfo(renderer, &info);
+  texture_format = info.texture_formats[0];
+
+  int w, h;
+  SDL_GetWindowSize(window, &w, &h);
+
+  // Calculate scale using render framebuffer size and window pixel size
+  SDL_GetRendererOutputSize(renderer, &fb_w, &fb_h);
+  scale = (double)fb_w / (double)w;
+
+  target_texture = SDL_CreateTexture(renderer, texture_format, SDL_TEXTUREACCESS_TARGET, fb_w, fb_h);
+  assert(target_texture != NULL);
+
+  buffer_texture = SDL_CreateTexture(renderer, texture_format, SDL_TEXTUREACCESS_TARGET, fb_w, fb_h);
+  assert(buffer_texture != NULL);
+
+  assert(SDL_SetRenderTarget(renderer, target_texture) == 0);
+
+  ren_set_clip_rect( (RenRect) { 0, 0, fb_w, fb_h } );
 }
 
 
 void ren_update_rects(RenRect *rects, int count) {
-  SDL_UpdateWindowSurfaceRects(window, (SDL_Rect*) rects, count);
+  //SDL_UpdateWindowSurfaceRects(window, (SDL_Rect*) rects, count);
   static bool initial_frame = true;
   if (initial_frame) {
     SDL_ShowWindow(window);
     initial_frame = false;
   }
+  assert(SDL_SetRenderTarget(renderer, buffer_texture) == 0);
+
+  for (int i = 0; i < count; i++) {
+    SDL_RenderCopy(renderer, target_texture, &rects[i], &rects[i]);
+  }
+
+  SDL_SetRenderTarget(renderer, NULL);
+  SDL_RenderCopy(renderer, buffer_texture, NULL, NULL);
+
+  SDL_RenderPresent(renderer);
+  assert(SDL_SetRenderTarget(renderer, target_texture) == 0);
 }
 
 
 void ren_set_clip_rect(RenRect rect) {
+  /*
   clip.left   = rect.x;
   clip.top    = rect.y;
   clip.right  = rect.x + rect.width;
   clip.bottom = rect.y + rect.height;
+  */
+  SDL_RenderSetClipRect(renderer, (SDL_Rect *)&rect);
 }
 
 
 void ren_get_size(int *x, int *y) {
-  SDL_Surface *surf = SDL_GetWindowSurface(window);
-  *x = surf->w;
-  *y = surf->h;
+  SDL_GetRendererOutputSize(renderer, x, y);
 }
 
 
@@ -93,14 +155,22 @@ RenImage* ren_new_image(int width, int height) {
   assert(width > 0 && height > 0);
   RenImage *image = malloc(sizeof(RenImage) + width * height * sizeof(RenColor));
   check_alloc(image);
-  image->pixels = (void*) (image + 1);
+  //image->pixels = (void*) (image + 1);
+  void *pixels = (void*) (image + 1);
   image->width = width;
   image->height = height;
+
+  image->surface = SDL_CreateRGBSurfaceWithFormatFrom(
+    pixels, image->width, image->height, 32, image->width * 4, SDL_PIXELFORMAT_ARGB8888);
+  image->texture = SDL_CreateTextureFromSurface(renderer, image->surface);
+
   return image;
 }
 
 
 void ren_free_image(RenImage *image) {
+  SDL_DestroyTexture(image->texture);
+  SDL_FreeSurface(image->surface);
   free(image);
 }
 
@@ -119,7 +189,7 @@ retry:
     stbtt_ScaleForMappingEmToPixels(&font->stbfont, 1) /
     stbtt_ScaleForPixelHeight(&font->stbfont, 1);
   int res = stbtt_BakeFontBitmap(
-    font->data, 0, font->size * s, (void*) set->image->pixels,
+    font->data, 0, font->size * s, (void*) set->image->surface->pixels,
     width, height, idx * 256, 256, set->glyphs);
 
   /* retry with a larger image buffer if the buffer wasn't large enough */
@@ -142,9 +212,11 @@ retry:
 
   /* convert 8bit data to 32bit */
   for (int i = width * height - 1; i >= 0; i--) {
-    uint8_t n = *((uint8_t*) set->image->pixels + i);
-    set->image->pixels[i] = (RenColor) { .r = 255, .g = 255, .b = 255, .a = n };
+    uint8_t n = *((uint8_t*) set->image->surface->pixels + i);
+    ((RenColor *) set->image->surface->pixels)[i] = (RenColor) { .r = 255, .g = 255, .b = 255, .a = n };
   }
+
+  SDL_UpdateTexture(set->image->texture, NULL, set->image->surface->pixels, width * 4);
 
   return set;
 }
@@ -240,7 +312,7 @@ int ren_get_font_height(RenFont *font) {
   return font->height;
 }
 
-
+/*
 static inline RenColor blend_pixel(RenColor dst, RenColor src) {
   int ia = 0xff - src.a;
   dst.r = ((src.r * src.a) + (dst.r * ia)) >> 8;
@@ -258,7 +330,7 @@ static inline RenColor blend_pixel2(RenColor dst, RenColor src, RenColor color) 
   dst.b = ((src.b * color.b * src.a) >> 16) + ((dst.b * ia) >> 8);
   return dst;
 }
-
+*/
 
 #define rect_draw_loop(expr)        \
   for (int j = y1; j < y2; j++) {   \
@@ -271,7 +343,7 @@ static inline RenColor blend_pixel2(RenColor dst, RenColor src, RenColor color) 
 
 void ren_draw_rect(RenRect rect, RenColor color) {
   if (color.a == 0) { return; }
-
+/*
   int x1 = rect.x < clip.left ? clip.left : rect.x;
   int y1 = rect.y < clip.top  ? clip.top  : rect.y;
   int x2 = rect.x + rect.width;
@@ -289,6 +361,11 @@ void ren_draw_rect(RenRect rect, RenColor color) {
   } else {
     rect_draw_loop(blend_pixel(*d, color));
   }
+*/
+  SDL_Rect sdl_rect = { .x = rect.x, .y = rect.y, .w = rect.width, .h = rect.height };
+
+  assert(SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a) == 0);
+  assert(SDL_RenderFillRect(renderer, &sdl_rect) == 0);
 }
 
 
@@ -296,6 +373,7 @@ void ren_draw_image(RenImage *image, RenRect *sub, int x, int y, RenColor color)
   if (color.a == 0) { return; }
 
   /* clip */
+  /*
   int n;
   if ((n = clip.left - x) > 0) { sub->width  -= n; sub->x += n; x += n; }
   if ((n = clip.top  - y) > 0) { sub->height -= n; sub->y += n; y += n; }
@@ -305,8 +383,12 @@ void ren_draw_image(RenImage *image, RenRect *sub, int x, int y, RenColor color)
   if (sub->width <= 0 || sub->height <= 0) {
     return;
   }
+  */
+  SDL_SetTextureColorMod(image->texture, color.r, color.g, color.b);
+  SDL_SetTextureAlphaMod(image->texture, color.a);
 
   /* draw */
+  /*
   SDL_Surface *surf = SDL_GetWindowSurface(window);
   RenColor *s = image->pixels;
   RenColor *d = (RenColor*) surf->pixels;
@@ -324,6 +406,9 @@ void ren_draw_image(RenImage *image, RenRect *sub, int x, int y, RenColor color)
     d += dr;
     s += sr;
   }
+  */
+  SDL_Rect dst = { .x = x, .y = y, .w = sub->width, .h = sub->height };
+  assert(SDL_RenderCopy(renderer, image->texture, sub, &dst) == 0);
 }
 
 
@@ -344,3 +429,19 @@ int ren_draw_text(RenFont *font, const char *text, int x, int y, RenColor color)
   }
   return x;
 }
+
+void ren_resize(int w, int h) {
+  SDL_DestroyTexture(target_texture);
+  SDL_DestroyTexture(buffer_texture);
+
+  SDL_GetRendererOutputSize(renderer, &fb_w, &fb_h);
+  scale = (double)fb_w / (double)w;
+
+  target_texture = SDL_CreateTexture(renderer, texture_format, SDL_TEXTUREACCESS_TARGET, fb_w, fb_h);
+  assert(target_texture != NULL);
+  buffer_texture = SDL_CreateTexture(renderer, texture_format, SDL_TEXTUREACCESS_TARGET, fb_w, fb_h);
+  assert(buffer_texture != NULL);
+
+  SDL_SetRenderTarget(renderer, target_texture);
+}
+

@@ -49,6 +49,8 @@ top:
 
     case SDL_WINDOWEVENT:
       if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
+        ren_resize(e.window.data1, e.window.data2);
+
         lua_pushstring(L, "resized");
         lua_pushnumber(L, e.window.data1);
         lua_pushnumber(L, e.window.data2);

@@ -319,6 +319,19 @@ function core.on_event(type, ...)
   return did_keymap
 end
 
+local function fix_mouse_scale(type,a,b,c,d)
+  if type == "mousepressed" or type == "mousereleased"then
+    b = b * SCALE
+    c = c * SCALE
+  elseif type == "mousemoved" then
+    a = a * SCALE
+    b = b * SCALE
+    c = c * SCALE
+    d = d * SCALE
+  end
+
+  return a,b,c,d
+end
 
 function core.step()
   -- handle events
@@ -327,6 +340,9 @@ function core.step()
   local mouse = { x = 0, y = 0, dx = 0, dy = 0 }
 
   for type, a,b,c,d in system.poll_event do
+
+    a,b,c,d = fix_mouse_scale(type,a,b,c,d)
+
     if type == "mousemoved" then
       mouse_moved = true
       mouse.x, mouse.y = a, b

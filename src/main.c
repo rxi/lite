@@ -15,17 +15,22 @@
 SDL_Window *window;
 
 
-static double get_scale(void) {
-  float dpi;
-  SDL_GetDisplayDPI(0, NULL, &dpi, NULL);
-#if _WIN32
-  return dpi / 96.0;
-#elif __APPLE__
-  return 1.0; /* dpi / 72.0; */
-#else
-  return 1.0;
-#endif
-}
+// static double get_scale(void) {
+//   float dpi;
+//   SDL_GetDisplayDPI(0, NULL, &dpi, NULL);
+//   printf("dpi: %f, %f\n", dpi, dpi / 96.0);
+// #if _WIN32
+//   return dpi / 96.0;
+// #elif __APPLE__
+//   SDL_DisplayMode dm;
+//   SDL_GetDesktopDisplayMode(0, &dm);
+//   printf("dm.h: %d, %f\n", dm.h, dm.h / 786.0);
+//   // return dm.h / 786.0;
+//   return 2.0;
+// #else
+//   return 1.0;
+// #endif
+// }
 
 
 static void get_exe_filename(char *buf, int sz) {
@@ -106,7 +111,7 @@ int main(int argc, char **argv) {
   lua_pushstring(L, SDL_GetPlatform());
   lua_setglobal(L, "PLATFORM");
 
-  lua_pushnumber(L, get_scale());
+  lua_pushnumber(L, ren_get_scale());
   lua_setglobal(L, "SCALE");
 
   char exename[2048];

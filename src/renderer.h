@@ -15,6 +15,8 @@ void ren_init(SDL_Window *win);
 void ren_update_rects(RenRect *rects, int count);
 void ren_set_clip_rect(RenRect rect);
 void ren_get_size(int *x, int *y);
+void ren_resize(int x, int y);
+double ren_get_scale();
 
 RenImage* ren_new_image(int width, int height);
 void ren_free_image(RenImage *image);

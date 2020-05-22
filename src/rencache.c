@@ -119,7 +119,7 @@ void rencache_set_clip_rect(RenRect rect) {
 
 
 void rencache_draw_rect(RenRect rect, RenColor color) {
-  if (!rects_overlap(screen_rect, rect)) { return; }
+  // if (!rects_overlap(screen_rect, rect)) { return; }
   Command *cmd = push_command(DRAW_RECT, sizeof(Command));
   if (cmd) {
     cmd->rect = rect;
