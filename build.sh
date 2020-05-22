@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cflags="-Wall -O3 -g -std=gnu11 -Isrc -DLUA_USE_POPEN"
-lflags="-lSDL2 -lm"
+cflags="${CFLAGS} -Wall -O3 -g -std=gnu11 -Isrc -DLUA_USE_POPEN"
+lflags="${LDFLAGS} -lSDL2 -lm"
 
 if [[ $* == *windows* ]]; then
   platform="windows"
@@ -40,3 +40,7 @@ echo "cleaning up..."
 rm *.o
 rm res.res 2>/dev/null
 echo "done"
+
+if [[ $got_error ]]; then
+  exit 1
+fi
