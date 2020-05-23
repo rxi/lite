@@ -435,13 +435,13 @@ end
 
 function RootView:on_mouse_moved(x, y, dx, dy)
   if self.dragged_divider then
-    local div = self.dragged_divider
-    if div.type == "hsplit" then
-      div.divider = div.divider + dx / div.size.x
+    local node = self.dragged_divider
+    if node.type == "hsplit" then
+      node.divider = node.divider + dx / node.size.x
     else
-      div.divider = div.divider + dy / div.size.y
+      node.divider = node.divider + dy / node.size.y
     end
-    div.divider = common.clamp(div.divider, 0.01, 0.99)
+    node.divider = common.clamp(node.divider, 0.01, 0.99)
     return
   end
 
