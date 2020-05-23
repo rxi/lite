@@ -29,31 +29,53 @@ end
 
 
 function translate.previous_word_boundary(doc, line, col)
-  local char = doc:get_char(doc:position_offset(line, col, -1))
-  local inword = not is_non_word(char)
+  local c = doc:get_char(doc:position_offset(line, col, -1))
+
+  if is_non_word(c) then
+    repeat
+      local line2, col2 = line, col
+      line, col = doc:position_offset(line, col, -1)
+      if line == line2 and col == col2 then
+        break
+      end
+      c = doc:get_char(doc:position_offset(line, col, -1))
+    until not is_non_word(c)
+  end
+
   repeat
     local line2, col2 = line, col
     line, col = doc:position_offset(line, col, -1)
     if line == line2 and col == col2 then
       break
     end
-    local c = doc:get_char(doc:position_offset(line, col, -1))
-  until inword and is_non_word(c) or not inword and c ~= char
+    c = doc:get_char(doc:position_offset(line, col, -1))
+  until is_non_word(c)
   return line, col
 end
 
 
 function translate.next_word_boundary(doc, line, col)
-  local char = doc:get_char(line, col)
-  local inword = not is_non_word(char)
+  local c = doc:get_char(line, col)
+
+  if is_non_word(c) then
+    repeat
+      local line2, col2 = line, col
+      line, col = doc:position_offset(line, col, 1)
+      if line == line2 and col == col2 then
+        break
+      end
+      c = doc:get_char(line, col)
+    until not is_non_word(c)
+  end
+
   repeat
     local line2, col2 = line, col
     line, col = doc:position_offset(line, col, 1)
     if line == line2 and col == col2 then
       break
     end
-    local c = doc:get_char(line, col)
-  until inword and is_non_word(c) or not inword and c ~= char
+    c = doc:get_char(line, col)
+  until is_non_word(c)
   return line, col
 end
 
