@@ -363,11 +363,11 @@ static int f_fuzzy_match(lua_State *L) {
     while (*str == ' ') { str++; }
     while (*ptn == ' ') { ptn++; }
     if (tolower(*str) == tolower(*ptn)) {
-      score += run;
+      score += run * 10 - (*str != *ptn);
       run++;
       ptn++;
     } else {
-      score--;
+      score -= 10;
       run = 0;
     }
     str++;
