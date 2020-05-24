@@ -365,10 +365,7 @@ function core.step()
   -- update
   core.root_view.size.x, core.root_view.size.y = width, height
   core.root_view:update()
-  if not core.redraw then
-    if not system.window_has_focus() then system.wait_event(0.5) end
-    return
-  end
+  if not core.redraw then return false end
   core.redraw = false
 
   -- close unreferenced docs
@@ -394,6 +391,7 @@ function core.step()
   renderer.set_clip_rect(table.unpack(core.clip_rect_stack[1]))
   core.root_view:draw()
   renderer.end_frame()
+  return true
 end
 
 
@@ -432,8 +430,11 @@ end)
 function core.run()
   while true do
     core.frame_start = system.get_time()
-    core.step()
+    local did_redraw = core.step()
     run_threads()
+    if not did_redraw and not system.window_has_focus() then
+      system.wait_event(0.25)
+    end
     local elapsed = system.get_time() - core.frame_start
     system.sleep(math.max(0, 1 / config.fps - elapsed))
   end
