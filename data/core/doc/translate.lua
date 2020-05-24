@@ -7,8 +7,20 @@ local config = require "core.config"
 local translate = {}
 
 
+local function is_whitespace(char)
+  return config.whitespace_chars:find(char, nil, true)
+end
+
+local function is_operator(char)
+  return config.operator_chars:find(char, nil, true)
+end
+
 local function is_non_word(char)
-  return config.non_word_chars:find(char, nil, true)
+  return is_whitespace(char) or is_operator(char)
+end
+
+local function is_word_char(char)
+  return not is_whitespace(char) and not is_operator(char)
 end
 
 
@@ -31,7 +43,7 @@ end
 function translate.previous_word_boundary(doc, line, col)
   local c = doc:get_char(doc:position_offset(line, col, -1))
 
-  if is_non_word(c) then
+  if is_whitespace(c) then
     repeat
       local line2, col2 = line, col
       line, col = doc:position_offset(line, col, -1)
@@ -39,17 +51,23 @@ function translate.previous_word_boundary(doc, line, col)
         break
       end
       c = doc:get_char(doc:position_offset(line, col, -1))
-    until not is_non_word(c)
+    until not is_whitespace(c)
   end
 
-  repeat
+  local is_word
+  if is_operator(c) then
+    is_word = is_operator
+  else
+    is_word = is_word_char
+  end
+  while is_word(c) do
     local line2, col2 = line, col
     line, col = doc:position_offset(line, col, -1)
     if line == line2 and col == col2 then
       break
     end
     c = doc:get_char(doc:position_offset(line, col, -1))
-  until is_non_word(c)
+  end
   return line, col
 end
 
@@ -57,7 +75,7 @@ end
 function translate.next_word_boundary(doc, line, col)
   local c = doc:get_char(line, col)
 
-  if is_non_word(c) then
+  if is_whitespace(c) then
     repeat
       local line2, col2 = line, col
       line, col = doc:position_offset(line, col, 1)
@@ -65,17 +83,23 @@ function translate.next_word_boundary(doc, line, col)
         break
       end
       c = doc:get_char(line, col)
-    until not is_non_word(c)
+    until not is_whitespace(c)
   end
 
-  repeat
+  local is_word
+  if is_operator(c) then
+    is_word = is_operator
+  else
+    is_word = is_word_char
+  end
+  while is_word(c) do
     local line2, col2 = line, col
     line, col = doc:position_offset(line, col, 1)
     if line == line2 and col == col2 then
       break
     end
     c = doc:get_char(line, col)
-  until is_non_word(c)
+  end
   return line, col
 end
 
