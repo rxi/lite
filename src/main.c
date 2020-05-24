@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
   }
   lua_setglobal(L, "ARGS");
 
-  lua_pushstring(L, "1.04");
+  lua_pushstring(L, "1.05");
   lua_setglobal(L, "VERSION");
 
   lua_pushstring(L, SDL_GetPlatform());
