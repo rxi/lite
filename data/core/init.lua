@@ -120,8 +120,34 @@ function core.init()
 end
 
 
+math.randomseed(system.get_time() * 1000)
+
+local function uid()
+  return string.gsub("xxxxxx", ".", function()
+    local chars = "0123456789abcdefghijklmnopqrstuvwxyz"
+    local n = math.random(#chars)
+    return chars:sub(n, n)
+  end)
+end
+
+local temp_file_prefix = ".temp_" .. uid()
+
+local function delete_temp_files()
+  for _, filename in ipairs(system.list_dir(EXEDIR)) do
+    if filename:find(temp_file_prefix, 1, true) == 1 then
+      os.remove(EXEDIR .. PATHSEP .. filename)
+    end
+  end
+end
+
+function core.temp_filename(ext)
+  return EXEDIR .. PATHSEP .. temp_file_prefix .. uid() .. (ext or "")
+end
+
+
 function core.quit(force)
   if force then
+    delete_temp_files()
     os.exit()
   end
   local dirty_count = 0
