@@ -93,6 +93,7 @@ function core.init()
   core.docs = {}
   core.threads = setmetatable({}, { __mode = "k" })
   core.project_files = {}
+  core.redraw = true
 
   core.root_view = RootView()
   core.command_view = CommandView()
