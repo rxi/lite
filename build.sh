@@ -11,6 +11,12 @@ if [[ $* == *windows* ]]; then
   lflags="$lflags -Lwinlib/SDL2-2.0.10/x86_64-w64-mingw32/lib"
   lflags="-lmingw32 -lSDL2main $lflags -mwindows -o $outfile res.res"
   x86_64-w64-mingw32-windres res.rc -O coff -o res.res
+elif [[ $* == *macos* ]]; then
+  platform="macos"
+  outfile="lite-osx"
+  compiler="gcc"
+  cflags="$cflags -DLUA_USE_POSIX"
+  lflags="$lflags -mmacosx-version-min=10.8 -o $outfile"
 else
   platform="unix"
   outfile="lite"
