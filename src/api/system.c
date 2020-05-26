@@ -2,17 +2,25 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <dirent.h>
-#include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include "api.h"
 #include "rencache.h"
+
 #ifdef _WIN32
+  #define VC_EXTRALEAN
+  #define WIN32_EXTRA_LEAN
   #include <windows.h>
 #endif
 
-extern SDL_Window *window;
+#ifdef _MSC_VER
+  #include <direct.h>
+  #define chdir(x) _chdir(x)
+#else
+  #include <unistd.h>
+#endif
 
+extern SDL_Window *window;
 
 static const char* button_name(int button) {
   switch (button) {

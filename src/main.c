@@ -4,6 +4,8 @@
 #include "renderer.h"
 
 #ifdef _WIN32
+  #define VC_EXTRALEAN
+  #define WIN32_EXTRA_LEAN
   #include <windows.h>
 #elif __linux__
   #include <unistd.h>
@@ -47,7 +49,7 @@ static void get_exe_filename(char *buf, int sz) {
 
 
 static void init_window_icon(void) {
-  #include <icon.inl>
+  #include "icon.inl"
   (void) icon_rgba_len; /* unused */
   SDL_Surface *surf = SDL_CreateRGBSurfaceFrom(
     icon_rgba, 64, 64,

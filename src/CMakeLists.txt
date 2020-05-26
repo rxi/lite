@@ -56,6 +56,7 @@ target_link_libraries(lite
     lua
     res
     ${SDL2_LIBRARY}
+    ${SDL2MAIN_LIBRARY}
 )
 install(TARGETS lite DESTINATION .)
 
