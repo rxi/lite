@@ -43,15 +43,13 @@ end
 function translate.previous_word_boundary(doc, line, col)
   local c = doc:get_char(doc:position_offset(line, col, -1))
 
-  if is_whitespace(c) then
-    repeat
-      local line2, col2 = line, col
-      line, col = doc:position_offset(line, col, -1)
+  while is_whitespace(c) do
+    local line2, col2 = line, col
+    line, col = doc:position_offset(line, col, -1)
       if line == line2 and col == col2 then
         break
       end
       c = doc:get_char(doc:position_offset(line, col, -1))
-    until not is_whitespace(c)
   end
 
   local is_word
@@ -75,15 +73,13 @@ end
 function translate.next_word_boundary(doc, line, col)
   local c = doc:get_char(line, col)
 
-  if is_whitespace(c) then
-    repeat
-      local line2, col2 = line, col
-      line, col = doc:position_offset(line, col, 1)
-      if line == line2 and col == col2 then
-        break
-      end
-      c = doc:get_char(line, col)
-    until not is_whitespace(c)
+  while is_whitespace(c) do
+    local line2, col2 = line, col
+    line, col = doc:position_offset(line, col, 1)
+    if line == line2 and col == col2 then
+      break
+    end
+    c = doc:get_char(line, col)
   end
 
   local is_word
