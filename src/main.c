@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
   }
   lua_setglobal(L, "ARGS");
 
-  lua_pushstring(L, "1.04");
+  lua_pushstring(L, "1.05");
   lua_setglobal(L, "VERSION");
 
   lua_pushstring(L, SDL_GetPlatform());
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
     "xpcall(function()\n"
     "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
     "  PATHSEP = package.config:sub(1, 1)\n"
-    "  EXEDIR = EXEFILE:match(\"^(.-)[^/\\\\]*$\")"
+    "  EXEDIR = EXEFILE:match(\"^(.+)[/\\\\].*$\")\n"
     "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
     "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
     "  core = require('core')\n"

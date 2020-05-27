@@ -18,7 +18,7 @@ local function reload_doc(doc)
 
   local sel = { doc:get_selection() }
   doc:remove(1, 1, math.huge, math.huge)
-  doc:insert(1, 1, text:gsub("\n$", ""))
+  doc:insert(1, 1, text:gsub("\r", ""):gsub("\n$", ""))
   doc:set_selection(table.unpack(sel))
 
   update_time(doc)

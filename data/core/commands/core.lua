@@ -56,13 +56,13 @@ command.add(nil, {
 
   ["core:file-finder"] = function()
     core.command_view:enter("Open File From Project", function(text, item)
-      text = core.project_dir .. PATHSEP .. (item and item.text or text)
+      text = item and item.text or text
       core.root_view:open_doc(core.open_doc(text))
     end, function(text)
       local files = {}
       for _, item in pairs(core.project_files) do
         if item.type == "file" then
-          table.insert(files, item.filename:sub(#core.project_dir + 2))
+          table.insert(files, item.filename)
         end
       end
       return common.fuzzy_match(files, text)
@@ -89,7 +89,7 @@ command.add(nil, {
   end,
 
   ["core:open-project-module"] = function()
-    local filename = core.project_dir .. "/.lite_project.lua"
+    local filename = ".lite_project.lua"
     if system.get_file_info(filename) then
       core.root_view:open_doc(core.open_doc(filename))
     else

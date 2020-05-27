@@ -22,7 +22,6 @@ local TreeView = View:extend()
 function TreeView:new()
   TreeView.super.new(self)
   self.scrollable = true
-  self.focusable = false
   self.visible = true
   self.init_size = true
   self.cache = {}
@@ -35,7 +34,7 @@ function TreeView:get_cached(item)
     t = {}
     t.filename = item.filename
     t.abs_filename = system.absolute_path(item.filename)
-    t.path, t.name = t.filename:match("^(.*)[\\/](.+)$")
+    t.name = t.filename:match("[^\\/]+$")
     t.depth = get_depth(t.filename)
     t.type = item.type
     self.cache[t.filename] = t
@@ -143,7 +142,6 @@ function TreeView:draw()
 
   local icon_width = style.icon_font:get_width("D")
   local spacing = style.font:get_width(" ") * 2
-  local root_depth = get_depth(core.project_dir) + 1
 
   local doc = core.active_view.doc
   local active_filename = doc and system.absolute_path(doc.filename or "")
@@ -163,7 +161,7 @@ function TreeView:draw()
     end
 
     -- icons
-    x = x + (item.depth - root_depth) * style.padding.x + style.padding.x
+    x = x + item.depth * style.padding.x + style.padding.x
     if item.type == "dir" then
       local icon1 = item.expanded and "-" or "+"
       local icon2 = item.expanded and "D" or "d"

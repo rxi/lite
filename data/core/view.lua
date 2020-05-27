@@ -14,7 +14,6 @@ function View:new()
   self.scroll = { x = 0, y = 0, to = { x = 0, y = 0 } }
   self.cursor = "arrow"
   self.scrollable = false
-  self.focusable = true
 end
 
 
