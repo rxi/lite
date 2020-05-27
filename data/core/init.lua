@@ -126,17 +126,9 @@ function core.init()
 end
 
 
-math.randomseed(system.get_time() * 1000)
-
-local function uid()
-  return string.gsub("xxxxxx", ".", function()
-    local chars = "0123456789abcdefghijklmnopqrstuvwxyz"
-    local n = math.random(#chars)
-    return chars:sub(n, n)
-  end)
-end
-
-local temp_file_prefix = ".temp_" .. uid()
+local temp_uid = (system.get_time() * 1000) % 0xffffffff
+local temp_file_prefix = string.format(".lite_temp_%08x", temp_uid)
+local temp_file_counter = 0
 
 local function delete_temp_files()
   for _, filename in ipairs(system.list_dir(EXEDIR)) do
@@ -147,7 +139,9 @@ local function delete_temp_files()
 end
 
 function core.temp_filename(ext)
-  return EXEDIR .. PATHSEP .. temp_file_prefix .. uid() .. (ext or "")
+  temp_file_counter = temp_file_counter + 1
+  return EXEDIR .. PATHSEP .. temp_file_prefix
+      .. string.format("%06x", temp_file_counter) .. (ext or "")
 end
 
 
