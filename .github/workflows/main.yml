@@ -6,6 +6,9 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
+    - uses: actions/checkout@v1
+    - name: Checkout submodules
+      run: git submodule init && git submodule update --init --recursive
     - name: Installing SDL2 via brew...
       run: brew install sdl2
     - name: Listing files...
