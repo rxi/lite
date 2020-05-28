@@ -85,30 +85,30 @@ function translate.end_of_word(doc, line, col)
 end
 
 
-function translate.previous_start_of_block(doc, line, col)
+function translate.previous_block_start(doc, line, col)
   while true do
     line = line - 1
     if line <= 1 then
       return 1, 1
     end
-    if doc.lines[line-1]:match("^%s*$")
-    and not doc.lines[line]:match("^%s*$") then
+    if doc.lines[line-1]:find("^%s*$")
+    and not doc.lines[line]:find("^%s*$") then
       return line, (doc.lines[line]:find("%S"))
     end
   end
 end
 
 
-function translate.next_start_of_block(doc, line, col)
+function translate.next_block_end(doc, line, col)
   while true do
-    line = line + 1
     if line >= #doc.lines then
       return #doc.lines, 1
     end
-    if doc.lines[line-1]:match("^%s*$")
-    and not doc.lines[line]:match("^%s*$") then
-      return line, (doc.lines[line]:find("%S"))
+    if doc.lines[line+1]:find("^%s*$")
+    and not doc.lines[line]:find("^%s*$") then
+      return line+1, #doc.lines[line+1]
     end
+    line = line + 1
   end
 end
 
