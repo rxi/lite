@@ -16,7 +16,7 @@ jobs:
     - name: Building...
       run: ./build.sh macos
     - name: Packing artifact...
-    - run: |
+      run: |
         mkdir -p ${{ github.workspace }}/artifact
         cp -r data ${{ github.workspace }}/artifact/
         cp lite ${{ github.workspace }}/artifact/
