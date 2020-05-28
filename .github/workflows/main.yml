@@ -18,6 +18,7 @@ jobs:
     - name: Uploading data artifact...
       uses: actions/upload-artifact@v2
       with:
+        name: lite_macos
         path: data
     - name: Uploading binary artifact...
       uses: actions/upload-artifact@v2
