@@ -15,13 +15,13 @@ jobs:
       run: ls -al
     - name: Building...
       run: ./build.sh macos
-    - name: Uploading data artifact...
+    - name: Packing artifact...
+    - run: |
+        mkdir -p ${{ github.workspace }}/artifact
+        cp -r data ${{ github.workspace }}/artifact/
+        cp lite ${{ github.workspace }}/artifact/
+    - name: Uploading artifact...
       uses: actions/upload-artifact@v2
       with:
         name: lite_macos
-        path: data
-    - name: Uploading binary artifact...
-      uses: actions/upload-artifact@v2
-      with:
-        name: lite_macos
-        path: lite
+        path: artifact
