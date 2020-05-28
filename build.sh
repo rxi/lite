@@ -1,5 +1,3 @@
-#!/bin/bash
-
 cflags="-Wall -O3 -g -Isrc"
 lflags="-lSDL2 -lm"
 echo $*
