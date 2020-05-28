@@ -1,0 +1,17 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - name: Installing SDL2 via brew...
+      run: brew install sdl2
+    - name: Building...
+      run: ./build.sh
+    - name: Uploading artifact...
+      uses: actions/upload-artifact@v2
+      with:
+        name: lite_macos
+        path: lite
