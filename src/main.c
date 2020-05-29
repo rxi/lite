@@ -20,8 +20,6 @@ static double get_scale(void) {
   SDL_GetDisplayDPI(0, NULL, &dpi, NULL);
 #if _WIN32
   return dpi / 96.0;
-#elif __APPLE__
-  return 1.0; /* dpi / 72.0; */
 #else
   return 1.0;
 #endif
