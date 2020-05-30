@@ -400,10 +400,10 @@ function core.step()
 
   -- update window title
   local name = core.active_view:get_name()
-  if name ~= "---" then
-    system.set_window_title(name .. " - lite")
-  else
-    system.set_window_title("lite")
+  local title = (name ~= "---") and (name .. " - lite") or  "lite"
+  if title ~= core.window_title then
+    system.set_window_title(title)
+    core.window_title = title
   end
 
   -- draw
