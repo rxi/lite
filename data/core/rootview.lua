@@ -15,8 +15,8 @@ function EmptyView:draw()
   local x, y, w, h = pos.x, pos.y, self.size.x, self.size.y
   local _, y = common.draw_text(style.big_font, style.dim, "lite", "center", x, y, w, h)
   local lines = {
-    { fmt = "%s to run a command", cmd = "core:command-finder" },
-    { fmt = "%s to open a file from the project", cmd = "core:file-finder" },
+    { fmt = "%s to run a command", cmd = "core:find-command" },
+    { fmt = "%s to open a file from the project", cmd = "core:find-file" },
   }
   local th = style.font:get_height()
   for _, line in ipairs(lines) do
