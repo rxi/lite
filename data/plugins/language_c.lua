@@ -1,7 +1,7 @@
 local syntax = require "core.syntax"
 
 syntax.add {
-  files = { "%.c$", "%.cc$", "%.cpp$", "%.cxx$", "%.c++$", "%.h$", "%.hh$", "%.hpp$", "%.inl$" }
+  files = { "%.c$", "%.cc$", "%.cpp$", "%.cxx$", "%.c++$", "%.h$", "%.hh$", "%.hpp$", "%.inl$" },
   comment = "//",
   patterns = {
     { pattern = "//.-\n",               type = "comment"  },
