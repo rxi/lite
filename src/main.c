@@ -9,6 +9,8 @@
   #include <unistd.h>
 #elif __APPLE__
   #include <mach-o/dyld.h>
+#elif __FreeBSD__
+  #include <stdlib.h>
 #endif
 
 
@@ -26,7 +28,7 @@ static double get_scale(void) {
 }
 
 
-static void get_exe_filename(char *buf, int sz) {
+static void get_exe_filename(const char *self, char *buf, int sz) {
 #if _WIN32
   int len = GetModuleFileName(NULL, buf, sz - 1);
   buf[len] = '\0';
@@ -38,6 +40,8 @@ static void get_exe_filename(char *buf, int sz) {
 #elif __APPLE__
   unsigned size = sz;
   _NSGetExecutablePath(buf, &size);
+#elif __FreeBSD__
+  realpath(self, buf);
 #else
   strcpy(buf, "./lite");
 #endif
@@ -111,8 +115,13 @@ int main(int argc, char **argv) {
   lua_pushnumber(L, get_scale());
   lua_setglobal(L, "SCALE");
 
+#ifdef __FreeBSD__
+  char exename[PATH_MAX];
+#else
   char exename[2048];
-  get_exe_filename(exename, sizeof(exename));
+#endif
+
+  get_exe_filename(argv[0], exename, sizeof(exename));
   lua_pushstring(L, exename);
   lua_setglobal(L, "EXEFILE");
 
