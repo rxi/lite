@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 cflags="-Wall -O3 -g -std=gnu11 -fno-strict-aliasing -Isrc"
 lflags="-lSDL2 -lm"
@@ -14,7 +14,7 @@ if [[ $* == *windows* ]]; then
 else
   platform="unix"
   outfile="lite"
-  compiler="gcc"
+  compiler="cc"
   cflags="$cflags -DLUA_USE_POSIX"
   lflags="$lflags -o $outfile"
 fi
