@@ -139,6 +139,7 @@ keymap.add {
   ["ctrl+delete"] = "doc:delete-to-next-word-end",
   ["ctrl+shift+delete"] = "doc:delete-to-next-word-end",
   ["return"] = { "command:submit", "doc:newline" },
+  ["keypad enter"] = { "command:submit", "doc:newline" },
   ["ctrl+return"] = "doc:newline-below",
   ["ctrl+shift+return"] = "doc:newline-above",
   ["ctrl+j"] = "doc:join-lines",
