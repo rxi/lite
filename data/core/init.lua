@@ -36,7 +36,7 @@ local function project_scan_thread()
 
     for _, file in ipairs(all) do
       if not common.match_pattern(file, config.ignore_files) then
-        local file = path .. PATHSEP .. file
+        local file = (path ~= "." and path .. PATHSEP or "") .. file
         local info = system.get_file_info(file)
         if info and info.size < size_limit then
           info.filename = file
@@ -62,7 +62,7 @@ local function project_scan_thread()
   while true do
     -- get project files and replace previous table if the new table is
     -- different
-    local t = get_files(core.project_dir)
+    local t = get_files(".")
     if diff_files(core.project_files, t) then
       core.project_files = t
       core.redraw = true
@@ -82,18 +82,26 @@ function core.init()
   CommandView = require "core.commandview"
   Doc = require "core.doc"
 
+  local project_dir = "."
+  local files = {}
+  for i = 2, #ARGS do
+    local info = system.get_file_info(ARGS[i]) or {}
+    if info.type == "file" then
+      table.insert(files, system.absolute_path(ARGS[i]))
+    elseif info.type == "dir" then
+      project_dir = ARGS[i]
+    end
+  end
+
+  system.chdir(project_dir)
+
   core.frame_start = 0
   core.clip_rect_stack = {{ 0,0,0,0 }}
   core.log_items = {}
   core.docs = {}
   core.threads = setmetatable({}, { __mode = "k" })
   core.project_files = {}
-  core.project_dir = "."
-
-  local info = ARGS[2] and system.get_file_info(ARGS[2])
-  if info and info.type == "dir" then
-    core.project_dir = ARGS[2]:gsub("[\\/]$", "")
-  end
+  core.redraw = true
 
   core.root_view = RootView()
   core.command_view = CommandView()
@@ -101,7 +109,6 @@ function core.init()
 
   core.root_view.root_node:split("down", core.command_view, true)
   core.root_view.root_node.b:split("down", core.status_view, true)
-  core.active_view = core.root_view.root_node.a.active_view
 
   core.add_thread(project_scan_thread)
   command.add_defaults()
@@ -109,12 +116,8 @@ function core.init()
   local got_user_error = not core.try(require, "user")
   local got_project_error = not core.load_project_module()
 
-  for i = 2, #ARGS do
-    local filename = ARGS[i]
-    local info = system.get_file_info(filename)
-    if info and info.type == "file" then
-      core.root_view:open_doc(core.open_doc(filename))
-    end
+  for _, filename in ipairs(files) do
+    core.root_view:open_doc(core.open_doc(filename))
   end
 
   if got_plugin_error or got_user_error or got_project_error then
@@ -123,8 +126,28 @@ function core.init()
 end
 
 
+local temp_uid = (system.get_time() * 1000) % 0xffffffff
+local temp_file_prefix = string.format(".lite_temp_%08x", temp_uid)
+local temp_file_counter = 0
+
+local function delete_temp_files()
+  for _, filename in ipairs(system.list_dir(EXEDIR)) do
+    if filename:find(temp_file_prefix, 1, true) == 1 then
+      os.remove(EXEDIR .. PATHSEP .. filename)
+    end
+  end
+end
+
+function core.temp_filename(ext)
+  temp_file_counter = temp_file_counter + 1
+  return EXEDIR .. PATHSEP .. temp_file_prefix
+      .. string.format("%06x", temp_file_counter) .. (ext or "")
+end
+
+
 function core.quit(force)
   if force then
+    delete_temp_files()
     os.exit()
   end
   local dirty_count = 0
@@ -166,7 +189,7 @@ end
 
 
 function core.load_project_module()
-  local filename = core.project_dir .. "/.lite_project.lua"
+  local filename = ".lite_project.lua"
   if system.get_file_info(filename) then
     return core.try(function()
       local fn, err = loadfile(filename)
@@ -186,6 +209,15 @@ function core.reload_module(name)
   if type(old) == "table" then
     for k, v in pairs(new) do old[k] = v end
     package.loaded[name] = old
+  end
+end
+
+
+function core.set_active_view(view)
+  assert(view, "Tried to set active view to nil")
+  if view ~= core.active_view then
+    core.last_active_view = core.active_view
+    core.active_view = view
   end
 end
 
@@ -307,11 +339,17 @@ function core.on_event(type, ...)
   elseif type == "mousewheel" then
     core.root_view:on_mouse_wheel(...)
   elseif type == "filedropped" then
-    local mx, my = core.root_view.mouse.x, core.root_view.mouse.y
-    local ok, doc = core.try(core.open_doc, select(1, ...))
-    if ok then
-      core.root_view:on_mouse_pressed("left", mx, my, 1)
-      core.root_view:open_doc(doc)
+    local filename, mx, my = ...
+    local info = system.get_file_info(filename)
+    if info and info.type == "dir" then
+      system.exec(string.format("%q %q", EXEFILE, filename))
+    else
+      local ok, doc = core.try(core.open_doc, filename)
+      if ok then
+        local node = core.root_view.root_node:get_child_overlapping_point(mx, my)
+        node:set_active_view(node.active_view)
+        core.root_view:open_doc(doc)
+      end
     end
   elseif type == "quit" then
     core.quit()
@@ -348,10 +386,7 @@ function core.step()
   -- update
   core.root_view.size.x, core.root_view.size.y = width, height
   core.root_view:update()
-  if not core.redraw then
-    if not system.window_has_focus() then system.wait_event(0.5) end
-    return
-  end
+  if not core.redraw then return false end
   core.redraw = false
 
   -- close unreferenced docs
@@ -365,10 +400,10 @@ function core.step()
 
   -- update window title
   local name = core.active_view:get_name()
-  if name ~= "---" then
-    system.set_window_title(name .. " - lite")
-  else
-    system.set_window_title("lite")
+  local title = (name ~= "---") and (name .. " - lite") or  "lite"
+  if title ~= core.window_title then
+    system.set_window_title(title)
+    core.window_title = title
   end
 
   -- draw
@@ -377,6 +412,7 @@ function core.step()
   renderer.set_clip_rect(table.unpack(core.clip_rect_stack[1]))
   core.root_view:draw()
   renderer.end_frame()
+  return true
 end
 
 
@@ -415,8 +451,11 @@ end)
 function core.run()
   while true do
     core.frame_start = system.get_time()
-    core.step()
+    local did_redraw = core.step()
     run_threads()
+    if not did_redraw and not system.window_has_focus() then
+      system.wait_event(0.25)
+    end
     local elapsed = system.get_time() - core.frame_start
     system.sleep(math.max(0, 1 / config.fps - elapsed))
   end

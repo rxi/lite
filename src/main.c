@@ -20,8 +20,6 @@ static double get_scale(void) {
   SDL_GetDisplayDPI(0, NULL, &dpi, NULL);
 #if _WIN32
   return dpi / 96.0;
-#elif __APPLE__
-  return 1.0; /* dpi / 72.0; */
 #else
   return 1.0;
 #endif
@@ -100,7 +98,7 @@ int main(int argc, char **argv) {
   }
   lua_setglobal(L, "ARGS");
 
-  lua_pushstring(L, "1.04");
+  lua_pushstring(L, "1.06");
   lua_setglobal(L, "VERSION");
 
   lua_pushstring(L, SDL_GetPlatform());
@@ -120,7 +118,7 @@ int main(int argc, char **argv) {
     "xpcall(function()\n"
     "  SCALE = tonumber(os.getenv(\"LITE_SCALE\")) or SCALE\n"
     "  PATHSEP = package.config:sub(1, 1)\n"
-    "  EXEDIR = EXEFILE:match(\"^(.-)[^/\\\\]*$\")"
+    "  EXEDIR = EXEFILE:match(\"^(.+)[/\\\\].*$\")\n"
     "  package.path = EXEDIR .. '/data/?.lua;' .. package.path\n"
     "  package.path = EXEDIR .. '/data/?/init.lua;' .. package.path\n"
     "  core = require('core')\n"

@@ -2,9 +2,11 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include "api.h"
+#include "rencache.h"
 #ifdef _WIN32
   #include <windows.h>
 #endif
@@ -35,6 +37,7 @@ static char* key_name(char *dst, int sym) {
 
 static int f_poll_event(lua_State *L) {
   char buf[16];
+  int mx, my, wx, wy;
   SDL_Event e;
 
 top:
@@ -54,7 +57,9 @@ top:
         lua_pushnumber(L, e.window.data2);
         return 3;
       } else if (e.window.event == SDL_WINDOWEVENT_EXPOSED) {
-        SDL_UpdateWindowSurface(window);
+        rencache_invalidate();
+        lua_pushstring(L, "exposed");
+        return 1;
       }
       /* on some systems, when alt-tabbing to the window SDL will queue up
       ** several KEYDOWN events for the `tab` key; we flush all keydown
@@ -65,10 +70,14 @@ top:
       goto top;
 
     case SDL_DROPFILE:
+      SDL_GetGlobalMouseState(&mx, &my);
+      SDL_GetWindowPosition(window, &wx, &wy);
       lua_pushstring(L, "filedropped");
       lua_pushstring(L, e.drop.file);
+      lua_pushnumber(L, mx - wx);
+      lua_pushnumber(L, my - wy);
       SDL_free(e.drop.file);
-      return 2;
+      return 4;
 
     case SDL_KEYDOWN:
       lua_pushstring(L, "keypressed");
@@ -216,6 +225,14 @@ static int f_show_confirm_dialog(lua_State *L) {
 }
 
 
+static int f_chdir(lua_State *L) {
+  const char *path = luaL_checkstring(L, 1);
+  int err = chdir(path);
+  if (err) { luaL_error(L, "chdir() failed"); }
+  return 0;
+}
+
+
 static int f_list_dir(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
 
@@ -321,10 +338,10 @@ static int f_sleep(lua_State *L) {
 static int f_exec(lua_State *L) {
   size_t len;
   const char *cmd = luaL_checklstring(L, 1, &len);
-  char *buf = malloc(len + 16);
+  char *buf = malloc(len + 32);
   if (!buf) { luaL_error(L, "buffer allocation failed"); }
 #if _WIN32
-  sprintf(buf, "cmd /c %s", cmd);
+  sprintf(buf, "cmd /c \"%s\"", cmd);
   WinExec(buf, SW_HIDE);
 #else
   sprintf(buf, "%s &", cmd);
@@ -346,11 +363,11 @@ static int f_fuzzy_match(lua_State *L) {
     while (*str == ' ') { str++; }
     while (*ptn == ' ') { ptn++; }
     if (tolower(*str) == tolower(*ptn)) {
-      score += run;
+      score += run * 10 - (*str != *ptn);
       run++;
       ptn++;
     } else {
-      score--;
+      score -= 10;
       run = 0;
     }
     str++;
@@ -370,6 +387,7 @@ static const luaL_Reg lib[] = {
   { "set_window_mode",     f_set_window_mode     },
   { "window_has_focus",    f_window_has_focus    },
   { "show_confirm_dialog", f_show_confirm_dialog },
+  { "chdir",               f_chdir               },
   { "list_dir",            f_list_dir            },
   { "absolute_path",       f_absolute_path       },
   { "get_file_info",       f_get_file_info       },

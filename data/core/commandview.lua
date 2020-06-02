@@ -111,9 +111,8 @@ function CommandView:enter(text, submit, suggest, cancel)
     submit = submit or noop,
     suggest = suggest or noop,
     cancel = cancel or noop,
-    view = core.active_view
   }
-  core.active_view = self
+  core.set_active_view(self)
   self:update_suggestions()
   self.gutter_text_brightness = 100
   self.label = text .. ": "
@@ -122,7 +121,7 @@ end
 
 function CommandView:exit(submitted, inexplicit)
   if core.active_view == self then
-    core.active_view = self.state.view
+    core.set_active_view(core.last_active_view)
   end
   local cancel = self.state.cancel
   self.state = default_state

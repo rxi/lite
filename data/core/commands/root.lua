@@ -94,7 +94,7 @@ for _, dir in ipairs { "left", "right", "up", "down" } do
     end
     local node = core.root_view.root_node:get_child_overlapping_point(x, y)
     if not node:get_locked_size() then
-      core.active_view = node.active_view
+      core.set_active_view(node.active_view)
     end
   end
 end
