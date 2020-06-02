@@ -46,7 +46,7 @@ end
 
 
 function Highlighter:invalidate(idx)
-  self.first_invalid_line = idx
+  self.first_invalid_line = math.min(self.first_invalid_line, idx)
   self.max_wanted_line = math.min(self.max_wanted_line, #self.doc.lines)
 end
 
