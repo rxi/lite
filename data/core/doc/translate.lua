@@ -28,33 +28,32 @@ function translate.next_char(doc, line, col)
 end
 
 
-function translate.previous_word_boundary(doc, line, col)
-  local char = doc:get_char(doc:position_offset(line, col, -1))
-  local inword = not is_non_word(char)
-  repeat
-    local line2, col2 = line, col
-    line, col = doc:position_offset(line, col, -1)
-    if line == line2 and col == col2 then
+function translate.previous_word_start(doc, line, col)
+  local prev
+  while line > 1 or col > 1 do
+    local l, c = doc:position_offset(line, col, -1)
+    local char = doc:get_char(l, c)
+    if prev and prev ~= char or not is_non_word(char) then
       break
     end
-    local c = doc:get_char(doc:position_offset(line, col, -1))
-  until inword and is_non_word(c) or not inword and c ~= char
-  return line, col
+    prev, line, col = char, l, c
+  end
+  return translate.start_of_word(doc, line, col)
 end
 
 
-function translate.next_word_boundary(doc, line, col)
-  local char = doc:get_char(line, col)
-  local inword = not is_non_word(char)
-  repeat
-    local line2, col2 = line, col
-    line, col = doc:position_offset(line, col, 1)
-    if line == line2 and col == col2 then
+function translate.next_word_end(doc, line, col)
+  local prev
+  local end_line, end_col = translate.end_of_doc(doc, line, col)
+  while line < end_line or col < end_col do
+    local char = doc:get_char(line, col)
+    if prev and prev ~= char or not is_non_word(char) then
       break
     end
-    local c = doc:get_char(line, col)
-  until inword and is_non_word(c) or not inword and c ~= char
-  return line, col
+    line, col = doc:position_offset(line, col, 1)
+    prev = char
+  end
+  return translate.end_of_word(doc, line, col)
 end
 
 
@@ -86,30 +85,30 @@ function translate.end_of_word(doc, line, col)
 end
 
 
-function translate.previous_start_of_block(doc, line, col)
+function translate.previous_block_start(doc, line, col)
   while true do
     line = line - 1
     if line <= 1 then
       return 1, 1
     end
-    if doc.lines[line-1]:match("^%s*$")
-    and not doc.lines[line]:match("^%s*$") then
+    if doc.lines[line-1]:find("^%s*$")
+    and not doc.lines[line]:find("^%s*$") then
       return line, (doc.lines[line]:find("%S"))
     end
   end
 end
 
 
-function translate.next_start_of_block(doc, line, col)
+function translate.next_block_end(doc, line, col)
   while true do
-    line = line + 1
     if line >= #doc.lines then
       return #doc.lines, 1
     end
-    if doc.lines[line-1]:match("^%s*$")
-    and not doc.lines[line]:match("^%s*$") then
-      return line, (doc.lines[line]:find("%S"))
+    if doc.lines[line+1]:find("^%s*$")
+    and not doc.lines[line]:find("^%s*$") then
+      return line+1, #doc.lines[line+1]
     end
+    line = line + 1
   end
 end
 

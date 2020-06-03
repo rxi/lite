@@ -9,22 +9,33 @@ local DocView = require "core.docview"
 
 local EmptyView = View:extend()
 
-function EmptyView:draw()
-  self:draw_background(style.background)
-  local pos = self.position
-  local x, y, w, h = pos.x, pos.y, self.size.x, self.size.y
-  local _, y = common.draw_text(style.big_font, style.dim, "lite", "center", x, y, w, h)
+local function draw_text(x, y, color)
+  local th = style.big_font:get_height()
+  local dh = th + style.padding.y * 2
+  x = renderer.draw_text(style.big_font, "lite", x, y + (dh - th) / 2, color)
+  x = x + style.padding.x
+  renderer.draw_rect(x, y, math.ceil(1 * SCALE), dh, color)
   local lines = {
-    { fmt = "%s to run a command", cmd = "core:command-finder" },
-    { fmt = "%s to open a file from the project", cmd = "core:file-finder" },
+    { fmt = "%s to run a command", cmd = "core:find-command" },
+    { fmt = "%s to open a file from the project", cmd = "core:find-file" },
   }
-  local th = style.font:get_height()
+  th = style.font:get_height()
+  y = y + (dh - th * 2 - style.padding.y) / 2
+  local w = 0
   for _, line in ipairs(lines) do
     local text = string.format(line.fmt, keymap.get_binding(line.cmd))
-    y = y + style.padding.y
-    common.draw_text(style.font, style.dim, text, "center", x, y, w, th)
-    y = y + th
+    w = math.max(w, renderer.draw_text(style.font, text, x + style.padding.x, y, color))
+    y = y + th + style.padding.y
   end
+  return w, dh
+end
+
+function EmptyView:draw()
+  self:draw_background(style.background)
+  local w, h = draw_text(0, 0, { 0, 0, 0, 0 })
+  local x = self.position.x + math.max(style.padding.x, (self.size.x - w) / 2)
+  local y = self.position.y + (self.size.y - h) / 2
+  draw_text(x, y, style.dim)
 end
 
 
