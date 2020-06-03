@@ -69,6 +69,11 @@ int main(int argc, char **argv) {
 #endif
 
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+  
+#ifdef SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR /* Available since 2.0.8 */
+  SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
+#endif
+  
   SDL_EnableScreenSaver();
   SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
   atexit(SDL_Quit);
