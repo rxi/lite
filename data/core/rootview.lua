@@ -349,7 +349,9 @@ function Node:draw_tabs()
       color = style.text
     end
     core.push_clip_rect(x, y, w, h)
-    common.draw_text(style.font, color, text, "center", x, y, w, h)
+    x, w = x + style.padding.x, w - style.padding.x * 2
+    local align = style.font:get_width(text) > w and "left" or "center"
+    common.draw_text(style.font, color, text, align, x, y, w, h)
     core.pop_clip_rect()
   end
 
