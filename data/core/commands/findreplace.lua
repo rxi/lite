@@ -45,23 +45,24 @@ local function find(label, search_fn)
     else
       core.error("Couldn't find %q", text)
       dv.doc:set_selection(table.unpack(sel))
+      dv:scroll_to_make_visible(sel[1], sel[2])
     end
 
   end, function(text)
     local ok, line1, col1, line2, col2 = pcall(search_fn, dv.doc, sel[1], sel[2], text)
-    if text == "" then
-      dv.doc:set_selection(table.unpack(sel))
-    elseif ok and line1 then
+    if ok and line1 and text ~= "" then
       dv.doc:set_selection(line2, col2, line1, col1)
       dv:scroll_to_line(line2, true)
       found = true
     else
+      dv.doc:set_selection(table.unpack(sel))
       found = false
     end
 
   end, function(explicit)
     if explicit then
       dv.doc:set_selection(table.unpack(sel))
+      dv:scroll_to_make_visible(sel[1], sel[2])
     end
   end)
 end
