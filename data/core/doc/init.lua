@@ -56,7 +56,8 @@ end
 
 
 function Doc:reset_syntax()
-  local syn = syntax.get(self.filename or "")
+  local header = self:get_text(1, 1, self:position_offset(1, 1, 128))
+  local syn = syntax.get(self.filename or "", header)
   if self.syntax ~= syn then
     self.syntax = syn
     self.highlighter:reset()

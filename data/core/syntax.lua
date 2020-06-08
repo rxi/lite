@@ -11,14 +11,19 @@ function syntax.add(t)
 end
 
 
-function syntax.get(filename)
+local function find(string, field)
   for i = #syntax.items, 1, -1 do
     local t = syntax.items[i]
-    if common.match_pattern(filename, t.files) then
+    if common.match_pattern(string, t[field] or {}) then
       return t
     end
   end
-  return plain_text_syntax
+end
+
+function syntax.get(filename, header)
+  return find(filename, "files")
+      or find(header, "headers")
+      or plain_text_syntax
 end
 
 

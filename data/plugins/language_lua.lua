@@ -2,6 +2,7 @@ local syntax = require "core.syntax"
 
 syntax.add {
   files = "%.lua$",
+  headers = "^#!.*[ /]lua",
   comment = "--",
   patterns = {
     { pattern = { '"', '"', '\\' },       type = "string"   },
