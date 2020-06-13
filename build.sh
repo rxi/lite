@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cflags="-Wall -O3 -g -std=gnu11 -Isrc"
+cflags="-Wall -O3 -g -std=gnu11 -fno-strict-aliasing -Isrc"
 lflags="-lSDL2 -lm"
 
 if [[ $* == *windows* ]]; then
