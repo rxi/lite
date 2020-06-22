@@ -198,6 +198,7 @@ function DocView:on_mouse_pressed(button, x, y, clicks)
     return
   end
   local line, col = self:resolve_screen_position(x, y)
+  self.mouse_selecting = clicks
   if clicks == 2 then
     local line1, col1 = translate.start_of_word(self.doc, line, col)
     local line2, col2 = translate.end_of_word(self.doc, line, col)
@@ -205,15 +206,16 @@ function DocView:on_mouse_pressed(button, x, y, clicks)
   elseif clicks == 3 then
     if line == #self.doc.lines then
       self.doc:insert(math.huge, math.huge, "\n")
+      self.mouse_selecting = 4
     end
     self.doc:set_selection(line + 1, 1, line, 1)
+    self.mouse_selecting_line = line
   else
     local line2, col2
     if keymap.modkeys["shift"] then
       line2, col2 = select(3, self.doc:get_selection())
     end
     self.doc:set_selection(line, col, line2, col2)
-    self.mouse_selecting = true
   end
   self.blink_timer = 0
 end
@@ -228,7 +230,32 @@ function DocView:on_mouse_moved(x, y, ...)
     self.cursor = "ibeam"
   end
 
-  if self.mouse_selecting then
+  if self.mouse_selecting == 2 then
+    local line, col = self:resolve_screen_position(x, y)
+    local _, _, line2, col2 = self.doc:get_selection()
+    if line < line2 or (line == line2 and col < col2) then
+      line, col = translate.start_of_word(self.doc, line, col)
+      line2, col2 = translate.end_of_word(self.doc, line2, col2)
+      self.doc:set_selection(line, col, line2, col2)
+    else
+      line,col = translate.end_of_word(self.doc, line, col)
+      line2, col2 = translate.start_of_word(self.doc, line2, col2)
+      self.doc:set_selection(line, col, line2, col2)
+    end
+  elseif self.mouse_selecting == 3 or self.mouse_selecting == 4 then
+    local line, _ = self:resolve_screen_position(x, y)
+    if self.mouse_selecting ~= 4 and line == #self.doc.lines then
+      self.doc:insert(math.huge, math.huge, "\n")
+      self.mouse_selecting = 4
+    end
+    local line2 = self.mouse_selecting_line
+    if line >= line2 then
+      line = line + 1
+    else
+      line2 = line2 + 1
+    end
+    self.doc:set_selection(line2, 1, line, 1)
+  elseif self.mouse_selecting then
     local _, _, line2, col2 = self.doc:get_selection()
     local line1, col1 = self:resolve_screen_position(x, y)
     self.doc:set_selection(line1, col1, line2, col2)
