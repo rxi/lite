@@ -220,9 +220,9 @@ function DocView:on_mouse_pressed(button, x, y, clicks)
   end
   if keymap.modkeys["shift"] then
     if clicks == 1 then
-      local line, col = self.doc:get_selection()
-      self.mouse_selecting = { line, col, clicks = 1 }
-      self:on_mouse_moved(x, y)
+      local line1, col1 = select(3, self.doc:get_selection())
+      local line2, col2 = self:resolve_screen_position(x, y)
+      self.doc:set_selection(line2, col2, line1, col1)
     end
   else
     local line, col = self:resolve_screen_position(x, y)
