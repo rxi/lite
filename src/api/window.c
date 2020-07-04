@@ -56,12 +56,14 @@ static int f_set_window_mode(lua_State *L) {
 // does not seem to work on Fedora Gnome Wayland
 // it returns true but visually nothing changes
 // possibly bc the view paints solid?
+/*
 static int f_set_window_opacity(lua_State *L) {
   double n = luaL_checknumber(L, 1);
   int r = SDL_SetWindowOpacity(window, n);
   lua_pushboolean(L, r > -1);
   return 1;
 }
+*/
 
 
 static int f_set_window_position(lua_State *L) {
@@ -133,7 +135,7 @@ static const luaL_Reg lib[] = {
   { "get_position",        f_get_window_position },
   { "get_size",            f_get_window_size     },
   { "set_mode",            f_set_window_mode     },
-  { "set_opacity",         f_set_window_opacity  },
+//  { "set_opacity",         f_set_window_opacity  },
   { "set_position",        f_set_window_position },
   { "set_size",            f_set_window_size     },
   { "set_title",           f_set_window_title    },
