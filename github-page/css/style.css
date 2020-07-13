@@ -143,7 +143,7 @@ h1 {
 }
 
 .customization .info_p {
-    color: var(--grey1);
+    color: white;
 }
 
 .customization .info_p a {
@@ -157,7 +157,7 @@ h1 {
 
 .customization .customization-links .button-link {
     margin: 5px;
-    width: 240px;
+    width: 280px;
 }
 
 .customization .customization-links {
