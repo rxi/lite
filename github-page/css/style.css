@@ -188,7 +188,7 @@ h1 {
 }
 
 /* media-queries */
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 820px) {
     h1 {
         font-size: 48px;
     }
@@ -218,5 +218,15 @@ h1 {
 
     .customization .customization-links {
         margin-top: 30px;
+    }
+
+    .customization .customization-links .button-link {
+        width: 240px;
+    }
+}
+
+@media screen and (max-width: 690px) {
+    .customization .customization-links .button-link {
+        width: 100%;
     }
 }
