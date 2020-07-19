@@ -5,6 +5,7 @@ A lightweight text editor written in Lua
 
 * **[Get lite](https://github.com/rxi/lite/releases/latest)** — Download
   for Windows and Linux
+* **[Get started](doc/usage.md)** — A quick overview on how to get started
 * **[Get plugins](https://github.com/rxi/lite-plugins)** — Add additional
   functionality
 * **[Get color themes](https://github.com/rxi/lite-colors)** — Add additional colors
