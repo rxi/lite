@@ -12,9 +12,9 @@ style.big_font = renderer.font.load(EXEDIR .. "/data/fonts/font.ttf", 34 * SCALE
 style.icon_font = renderer.font.load(EXEDIR .. "/data/fonts/icons.ttf", 14 * SCALE)
 style.code_font = renderer.font.load(EXEDIR .. "/data/fonts/monospace.ttf", 13.5 * SCALE)
 
-style.background = { common.color "#2e2e32" }
-style.background2 = { common.color "#252529" }
-style.background3 = { common.color "#252529" }
+style.background = { common.color "#000000" }  -- doc bg
+style.background2 = { common.color "#151519" } -- left panel, tab bar deselected
+style.background3 = { common.color "#212125" } -- pop up bg
 style.text = { common.color "#97979c" }
 style.caret = { common.color "#93DDFA" }
 style.accent = { common.color "#e1e1e6" }

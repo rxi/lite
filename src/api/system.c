@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <dirent.h>

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "api/api.h"
 #include "renderer.h"
 

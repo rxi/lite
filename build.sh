@@ -1,7 +1,8 @@
 #!/bin/bash
 
-cflags="-Wall -O3 -g -std=gnu11 -fno-strict-aliasing -Isrc"
-lflags="-lSDL2 -lm"
+# -I/usr/local/include/SDL2
+cflags="-Wall -O3 -g -std=gnu11 -fno-strict-aliasing -Isrc -I/usr/local/include/SDL2 -D_THREAD_SAFE"
+lflags="-L/usr/local/lib -lSDL2 -lm"
 
 if [[ $* == *windows* ]]; then
   platform="windows"
@@ -26,8 +27,9 @@ fi
 
 echo "compiling ($platform)..."
 for f in `find src -name "*.c"`; do
-  $compiler -c $cflags $f -o "${f//\//_}.o"
+  $compiler -c $lflags $cflags $f -o "${f//\//_}.o"
   if [[ $? -ne 0 ]]; then
+    echo "!?!?! " -c $cflags $f -o "${f//\//_}.o"
     got_error=true
   fi
 done

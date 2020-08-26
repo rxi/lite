@@ -1,0 +1,16 @@
+Error: /Users/isha/git/lite/data/plugins/treeview.lua:149: /Users/isha/git/lite/data/plugins/treeview.lua:32: attempt to index local 'item' (a nil value)
+stack traceback:
+	[C]: in function 'for iterator'
+	/Users/isha/git/lite/data/plugins/treeview.lua:149: in function 'draw'
+	/Users/isha/git/lite/data/core/rootview.lua:369: in function '?'
+	/Users/isha/git/lite/data/core/rootview.lua:58: in function 'propagate'
+	/Users/isha/git/lite/data/core/rootview.lua:374: in function '?'
+	/Users/isha/git/lite/data/core/rootview.lua:58: in function 'propagate'
+	/Users/isha/git/lite/data/core/rootview.lua:374: in function 'draw'
+	/Users/isha/git/lite/data/core/rootview.lua:496: in function 'draw'
+	/Users/isha/git/lite/data/plugins/autocomplete.lua:236: in function 'draw'
+	/Users/isha/git/lite/data/core/init.lua:413: in function 'step'
+	/Users/isha/git/lite/data/core/init.lua:454: in function 'run'
+	[string "local core..."]:10: in function <[string "local core..."]:2>
+	[C]: in function 'xpcall'
+	[string "local core..."]:2: in main chunk
