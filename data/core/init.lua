@@ -41,14 +41,8 @@ local function project_scan_thread()
         if info and info.size < size_limit then
           info.filename = file
           table.insert(info.type == "dir" and dirs or files, info)
-          -- if i < 10 then
-          --   table.insert(info.type == "dir" and dirs or files, info)
-          -- end
         end
       end
-      -- if i > 512 then
-      --   break
-      -- end
     end
 
     table.sort(dirs, compare_file)
