@@ -34,7 +34,7 @@ local function project_scan_thread()
     local all = system.list_dir(path) or {}
     local dirs, files = {}, {}
 
-    for i, file in ipairs(all) do
+    for _, file in ipairs(all) do
       if not common.match_pattern(file, config.ignore_files) then
         local file = (path ~= "." and path .. PATHSEP or "") .. file
         local info = system.get_file_info(file)

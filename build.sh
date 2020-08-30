@@ -40,7 +40,7 @@ done
 for pid in ${PIDS[@]}; do
   wait "$pid";
   if [[ $? -ne 0 ]]; then
-      got_error=true
+    got_error=true
   fi
 done
 

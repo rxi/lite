@@ -27,7 +27,8 @@ The editor can be customized by making changes to the
 You can build the project yourself on *nix using the provided `build.sh`
 script.
 
-For Darwin / MacOS, assumes SDL2 available via `pkg-confing`. Packagers ought to provide this, so `brew install SDL2` should just work.
+For Darwin / MacOS, assumes SDL2 available via `pkg-confing`. Packagers
+ought to provide this, so `brew install SDL2` should just work.
 
 Note that the project does not need to be rebuilt if you are only making
 changes to the Lua portion of the code.
