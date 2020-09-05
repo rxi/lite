@@ -222,6 +222,12 @@ void ren_set_font_tab_width(RenFont *font, int n) {
 }
 
 
+int ren_get_font_tab_width(RenFont *font) {
+  GlyphSet *set = get_glyphset(font, '\t');
+  return set->glyphs['\t'].xadvance;
+}
+
+
 int ren_get_font_width(RenFont *font, const char *text) {
   int x = 0;
   const char *p = text;

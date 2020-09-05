@@ -22,6 +22,7 @@ void ren_free_image(RenImage *image);
 RenFont* ren_load_font(const char *filename, float size);
 void ren_free_font(RenFont *font);
 void ren_set_font_tab_width(RenFont *font, int n);
+int ren_get_font_tab_width(RenFont *font);
 int ren_get_font_width(RenFont *font, const char *text);
 int ren_get_font_height(RenFont *font);
 

@@ -18,6 +18,7 @@ typedef struct {
   RenRect rect;
   RenColor color;
   RenFont *font;
+  int tab_width;
   char text[0];
 } Command;
 
@@ -143,6 +144,7 @@ int rencache_draw_text(RenFont *font, const char *text, int x, int y, RenColor c
       cmd->color = color;
       cmd->font = font;
       cmd->rect = rect;
+      cmd->tab_width = ren_get_font_tab_width(font);
     }
   }
 
@@ -254,6 +256,7 @@ void rencache_end_frame(void) {
           ren_draw_rect(cmd->rect, cmd->color);
           break;
         case DRAW_TEXT:
+          ren_set_font_tab_width(cmd->font, cmd->tab_width);
           ren_draw_text(cmd->font, cmd->text, cmd->rect.x, cmd->rect.y, cmd->color);
           break;
       }
