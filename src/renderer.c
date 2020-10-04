@@ -116,7 +116,7 @@ static GlyphSet* load_glyphset(RenFont *font, int idx) {
 retry:
   set->image = ren_new_image(width, height);
   float s =
-		stbtt_ScaleForMappingEmToPixels(&font->stbfont, 1) /
+    stbtt_ScaleForMappingEmToPixels(&font->stbfont, 1) /
     stbtt_ScaleForPixelHeight(&font->stbfont, 1);
 
   stbtt_PackBegin(&pc, (void*) set->image->pixels, width, height, 0, 1, NULL);
