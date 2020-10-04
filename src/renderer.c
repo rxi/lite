@@ -111,7 +111,7 @@ static GlyphSet* load_glyphset(RenFont *font, int idx) {
   /* init image */
   int width = 128;
   int height = 128;
-	stbtt_pack_context pc;
+  stbtt_pack_context pc;
 
 retry:
   set->image = ren_new_image(width, height);
