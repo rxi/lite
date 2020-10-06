@@ -23,6 +23,14 @@ themes can be found in the [colors repository](https://github.com/rxi/lite-color
 The editor can be customized by making changes to the
 [user module](data/user/init.lua).
 
+An alternative version, Lite XL, with improved font rendering is available from
+the [Lite XL repository](https://github.com/franko/lite-xl). It can be downloaded
+for Windows and Linux from the
+[Lite XL's release page](https://github.com/franko/lite-xl/releases).
+
+Lite XL is perfectly compatible with Lite so all the plugins and Lua custom code
+will work without modifications.
+
 ## Building
 You can build the project yourself on Linux using the `build.sh` script
 or on Windows using the `build.bat` script *([MinGW](https://nuwen.net/mingw.html) is required)*.
