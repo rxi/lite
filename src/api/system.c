@@ -417,8 +417,8 @@ static int f_popen(lua_State *L) {
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
 #else
-  FILE* pipe = popen(cmd, "rb");
-  if (pipe == NULL) { luaL_error(L, "Failed to start process"); }
+  FILE* pipe = popen(cmd, "r");
+  if (pipe == NULL) { luaL_error(L, "Failed to start process: %d", errno); }
 
   size_t read;
   while(!feof(pipe)) {
@@ -426,7 +426,8 @@ static int f_popen(lua_State *L) {
     read = fread(b, sizeof(char), LUAL_BUFFERSIZE, pipe);
     luaL_addsize(&stdoutBuf, read);
   }
-  exitCode = WEXITSTATUS(pclose(pipe));
+  int status = pclose(pipe);
+  if (WIFEXITED(status)) { exitCode = WEXITSTATUS(status); }
 #endif
   luaL_pushresult(&stdoutBuf);
   lua_pushnumber(L, exitCode);
