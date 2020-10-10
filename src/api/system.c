@@ -354,15 +354,11 @@ static int f_exec(lua_State *L) {
 
 static int f_popen(lua_State *L) {
   size_t len;
-
   const char *cmd = luaL_checklstring(L, 1, &len);
-  int bufferSize = luaL_optnumber(L, 2, 2048);
 
   unsigned long exitCode = 0;
-  size_t stdoutSize = bufferSize;
-  size_t stdoutRead = 0;
-  char* stdoutBuf = malloc(stdoutSize);
-  if (!stdoutBuf) { luaL_error(L, "buffer allocation failed"); }
+  luaL_Buffer stdoutBuf;
+  luaL_buffinit(L, &stdoutBuf);
 
 #if _WIN32
   char* buf = malloc(len + 32);
@@ -376,10 +372,10 @@ static int f_popen(lua_State *L) {
   sa.bInheritHandle = TRUE;
 
   HANDLE stdoutReadHandle, stdoutWriteHandle;
-  if (! CreatePipe(&stdoutReadHandle, &stdoutWriteHandle, &sa, 0) ) {
+  if (!CreatePipe(&stdoutReadHandle, &stdoutWriteHandle, &sa, 0)) {
     luaL_error(L, "Unable to create stdout pipe");
   }
-  if (! SetHandleInformation(stdoutReadHandle, HANDLE_FLAG_INHERIT, 0) ) {
+  if (!SetHandleInformation(stdoutReadHandle, HANDLE_FLAG_INHERIT, 0)) {
     luaL_error(L, "Unable to create stdout pipe");
   }
 
@@ -403,59 +399,37 @@ static int f_popen(lua_State *L) {
   for (;;) {
     if (!PeekNamedPipe(stdoutReadHandle, NULL, 0, NULL, &rem, NULL)) {
       luaL_error(L, "Error peeking into stdout: %d", GetLastError());
-      break;
     }
     if (!GetExitCodeProcess(pi.hProcess, &exitCode)) {
       luaL_error(L, "Error checking process exit code: %d", GetLastError());
-      break;
     }
-
-    if (exitCode != 259 && rem == 0) break;
+    if (exitCode != 259 && rem == 0) { break; }
 
     // if there are things to read, resize and read it
     if (rem) {
-      rem++;
-      stdoutSize += rem;
-      char* newbuf = realloc(stdoutBuf, stdoutSize);
-      if (newbuf == NULL) {
-        luaL_error(L, "Unable to allocate memory");
-        break;
-      }
-      stdoutBuf = newbuf;
-
-      if (!ReadFile(stdoutReadHandle, stdoutBuf + stdoutRead, rem, &read, NULL)) {
+      char* b = luaL_prepbuffsize(&stdoutBuf, rem);
+      if (!ReadFile(stdoutReadHandle, b, rem, &read, NULL)) {
         luaL_error(L, "Error reading from stdout: %d", GetLastError());
-        break;
       }
-      stdoutRead += read;
+      luaL_addsize(&stdoutBuf, read);
     }
   }
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
-  stdoutBuf[stdoutRead] = '\0';
 #else
   FILE* pipe = popen(cmd, "rb");
-  if (pipe == NULL) { luaL_error("Unable to start process"); }
+  if (pipe == NULL) { luaL_error("Failed to start process"); }
 
+  size_t read;
   while(!feof(pipe)) {
-    size_t read = fread(stdoutBuf + stdoutRead, sizeof(char), 2048, pipe);
-    stdoutRead += read;
-    if (stdoutRead >= stdoutSize) {
-      stdoutSize = stdoutRead + 1;
-      char* newbuf = realloc(stdoutBuf, stdoutSize);
-      if (newbuf == NULL) {
-        luaL_error(L, "buffer allocation failed");
-        break;
-      }
-    }
+    char* b = luaL_prepbuffer(&stdoutBuf);
+    read = fread(b, sizeof(char), LUAL_BUFFERSIZE, pipe);
+    luaL_addsize(&stdoutBuf, read);
   }
-  stdoutBuf[stdoutRead] = '\0';
   exitCode = WEXITSTATUS(pclose(pipe));
 #endif
-  // cast buffer into lua strings
-  lua_pushstring(L, stdoutBuf);
+  luaL_pushresult(&stdoutBuf);
   lua_pushnumber(L, exitCode);
-  free(stdoutBuf);
   return 2;
 }
 
