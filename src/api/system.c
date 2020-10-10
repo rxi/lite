@@ -418,7 +418,7 @@ static int f_popen(lua_State *L) {
   CloseHandle(pi.hThread);
 #else
   FILE* pipe = popen(cmd, "rb");
-  if (pipe == NULL) { luaL_error("Failed to start process"); }
+  if (pipe == NULL) { luaL_error(L, "Failed to start process"); }
 
   size_t read;
   while(!feof(pipe)) {
