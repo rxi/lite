@@ -352,6 +352,112 @@ static int f_exec(lua_State *L) {
   return 0;
 }
 
+static int f_popen(lua_State *L) {
+  size_t len;
+
+  const char *cmd = luaL_checklstring(L, 1, &len);
+  int bufferSize = luaL_optnumber(L, 2, 2048);
+
+  unsigned long exitCode = 0;
+  size_t stdoutSize = bufferSize;
+  size_t stdoutRead = 0;
+  char* stdoutBuf = malloc(stdoutSize);
+  if (!stdoutBuf) { luaL_error(L, "buffer allocation failed"); }
+
+#if _WIN32
+  char* buf = malloc(len + 32);
+  if (!buf) { luaL_error(L, "buffer allocation failed"); }
+  sprintf(buf, "cmd.exe /c \"%s\"", cmd);
+
+  // from https://stackoverflow.com/questions/7018228/how-do-i-redirect-output-to-a-file-with-createprocess
+  SECURITY_ATTRIBUTES sa;
+  sa.nLength = sizeof(sa);
+  sa.lpSecurityDescriptor = NULL;
+  sa.bInheritHandle = TRUE;
+
+  HANDLE stdoutReadHandle, stdoutWriteHandle;
+  if (! CreatePipe(&stdoutReadHandle, &stdoutWriteHandle, &sa, 0) ) {
+    luaL_error(L, "Unable to create stdout pipe");
+  }
+  if (! SetHandleInformation(stdoutReadHandle, HANDLE_FLAG_INHERIT, 0) ) {
+    luaL_error(L, "Unable to create stdout pipe");
+  }
+
+  PROCESS_INFORMATION pi;
+  STARTUPINFO si;
+
+  ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+  ZeroMemory(&si, sizeof(STARTUPINFO));
+  si.cb = sizeof(STARTUPINFO);
+  si.dwFlags |= STARTF_USESTDHANDLES;
+  si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+  si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+  si.hStdOutput = stdoutWriteHandle;
+
+  if (!CreateProcess(NULL, buf, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+    luaL_error(L, "Failed to start process: %d", GetLastError());
+  }
+
+  // read data from stdout
+  DWORD read, rem;
+  for (;;) {
+    if (!PeekNamedPipe(stdoutReadHandle, NULL, 0, NULL, &rem, NULL)) {
+      luaL_error(L, "Error peeking into stdout: %d", GetLastError());
+      break;
+    }
+    if (!GetExitCodeProcess(pi.hProcess, &exitCode)) {
+      luaL_error(L, "Error checking process exit code: %d", GetLastError());
+      break;
+    }
+
+    if (exitCode != 259 && rem == 0) break;
+
+    // if there are things to read, resize and read it
+    if (rem) {
+      rem++;
+      stdoutSize += rem;
+      char* newbuf = realloc(stdoutBuf, stdoutSize);
+      if (newbuf == NULL) {
+        luaL_error(L, "Unable to allocate memory");
+        break;
+      }
+      stdoutBuf = newbuf;
+
+      if (!ReadFile(stdoutReadHandle, stdoutBuf + stdoutRead, rem, &read, NULL)) {
+        luaL_error(L, "Error reading from stdout: %d", GetLastError());
+        break;
+      }
+      stdoutRead += read;
+    }
+  }
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
+  stdoutBuf[stdoutRead] = '\0';
+#else
+  FILE* pipe = popen(cmd, "rb");
+  if (pipe == NULL) { luaL_error("Unable to start process"); }
+
+  while(!feof(pipe)) {
+    size_t read = fread(stdoutBuf + stdoutRead, sizeof(char), 2048, pipe);
+    stdoutRead += read;
+    if (stdoutRead >= stdoutSize) {
+      stdoutSize = stdoutRead + 1;
+      char* newbuf = realloc(stdoutBuf, stdoutSize);
+      if (newbuf == NULL) {
+        luaL_error(L, "buffer allocation failed");
+        break;
+      }
+    }
+  }
+  stdoutBuf[stdoutRead] = '\0';
+  exitCode = WEXITSTATUS(pclose(pipe));
+#endif
+  // cast buffer into lua strings
+  lua_pushstring(L, stdoutBuf);
+  lua_pushnumber(L, exitCode);
+  free(stdoutBuf);
+  return 2;
+}
 
 static int f_fuzzy_match(lua_State *L) {
   const char *str = luaL_checkstring(L, 1);
@@ -396,6 +502,7 @@ static const luaL_Reg lib[] = {
   { "get_time",            f_get_time            },
   { "sleep",               f_sleep               },
   { "exec",                f_exec                },
+  { "popen",               f_popen               },
   { "fuzzy_match",         f_fuzzy_match         },
   { NULL, NULL }
 };
