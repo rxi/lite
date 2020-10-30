@@ -105,16 +105,20 @@ function DocView:get_line_height()
 end
 
 
-function DocView:get_gutter_width()
-  return self:get_font():get_width(#self.doc.lines) + style.padding.x * 2
+function DocView:get_line_viewport_x_offset()
+  if config.show_gutter then
+    return self:get_font():get_width(#self.doc.lines) + style.padding.x * 2
+  else
+    return style.line_viewport_x_offset
+  end
 end
 
 
 function DocView:get_line_screen_position(idx)
   local x, y = self:get_content_offset()
   local lh = self:get_line_height()
-  local gw = self:get_gutter_width()
-  return x + gw, y + (idx-1) * lh + style.padding.y
+  local xoffset = self:get_line_viewport_x_offset()
+  return x + xoffset, y + (idx-1) * lh + style.padding.y
 end
 
 
@@ -185,9 +189,9 @@ function DocView:scroll_to_make_visible(line, col)
   local max = self:get_line_height() * (line + 2) - self.size.y
   self.scroll.to.y = math.min(self.scroll.to.y, min)
   self.scroll.to.y = math.max(self.scroll.to.y, max)
-  local gw = self:get_gutter_width()
+  local viewport_offset = self:get_line_viewport_x_offset()
   local xoffset = self:get_col_x_offset(line, col)
-  local max = xoffset - self.size.x + gw + self.size.x / 5
+  local max = xoffset - self.size.x + viewport_offset + self.size.x / 5
   self.scroll.to.x = math.max(0, max)
 end
 
@@ -349,6 +353,18 @@ function DocView:draw_line_gutter(idx, x, y)
   renderer.draw_text(self:get_font(), idx, x, y + yoffset, color)
 end
 
+function DocView:draw_gutter(minline, maxline)  
+  if config.show_gutter then
+    local lh = self:get_line_height()
+    local _, y = self:get_line_screen_position(minline)
+    local x = self.position.x
+
+    for i = minline, maxline do
+      self:draw_line_gutter(i, x, y)
+      y = y + lh
+    end
+  end
+end
 
 function DocView:draw()
   self:draw_background(style.background)
@@ -356,20 +372,15 @@ function DocView:draw()
   local font = self:get_font()
   font:set_tab_width(font:get_width(" ") * config.indent_size)
 
-  local minline, maxline = self:get_visible_line_range()
+  local minline, maxline = self:get_visible_line_range()  
+  
+  self:draw_gutter(minline, maxline)
+
   local lh = self:get_line_height()
-
-  local _, y = self:get_line_screen_position(minline)
-  local x = self.position.x
-  for i = minline, maxline do
-    self:draw_line_gutter(i, x, y)
-    y = y + lh
-  end
-
   local x, y = self:get_line_screen_position(minline)
-  local gw = self:get_gutter_width()
+  local xoffset = self:get_line_viewport_x_offset()
   local pos = self.position
-  core.push_clip_rect(pos.x + gw, pos.y, self.size.x, self.size.y)
+  core.push_clip_rect(pos.x + xoffset, pos.y, self.size.x, self.size.y)
   for i = minline, maxline do
     self:draw_line_body(i, x, y)
     y = y + lh

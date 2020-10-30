@@ -6,6 +6,7 @@ style.divider_size = common.round(1 * SCALE)
 style.scrollbar_size = common.round(4 * SCALE)
 style.caret_width = common.round(2 * SCALE)
 style.tab_width = common.round(170 * SCALE)
+style.line_viewport_x_offset = common.round(5 * SCALE)
 
 style.font = renderer.font.load(EXEDIR .. "/data/fonts/font.ttf", 14 * SCALE)
 style.big_font = renderer.font.load(EXEDIR .. "/data/fonts/font.ttf", 34 * SCALE)
