@@ -77,18 +77,39 @@ local commands = {
       local text = doc():get_text(doc():get_selection())
       system.set_clipboard(text)
       doc():delete_to(0)
+    else
+      local line = doc():get_selection()
+      local text = doc().lines[line]
+      system.set_clipboard(text)
+      core.line_in_clipboard = text
+      if line < #doc().lines then
+        doc():remove(line, 1, line + 1, 1)
+      else
+        doc():remove(line - 1, math.huge, line, math.huge)
+      end
     end
   end,
 
   ["doc:copy"] = function()
+    local line1, col1, line2, col2, text = doc():get_selection()
     if doc():has_selection() then
-      local text = doc():get_text(doc():get_selection())
-      system.set_clipboard(text)
+      text = doc():get_text(line1, col1, line2, col2)
+    else
+      text = doc().lines[line1]
+      core.line_in_clipboard = text
     end
+    system.set_clipboard(text)
   end,
 
   ["doc:paste"] = function()
-    doc():text_input(system.get_clipboard():gsub("\r", ""))
+    local clipboard = system.get_clipboard():gsub("\r", "")
+    if core.line_in_clipboard == clipboard then
+      local line, col = doc():get_selection()
+      doc():insert(line, 1, clipboard)
+      doc():set_selection(line+1, col)
+    else
+      doc():text_input(clipboard)
+    end
   end,
 
   ["doc:newline"] = function()
@@ -160,9 +181,7 @@ local commands = {
     local line1, _, line2 = doc():get_selection(true)
     if line1 == line2 then line2 = line2 + 1 end
     local text = doc():get_text(line1, 1, line2, math.huge)
-    text = text:gsub("(.-)\n[\t ]*", function(x)
-      return x:find("^%s*$") and x or x .. " "
-    end)
+    text = text:gsub("\n[\t ]*", " ")
     doc():insert(line1, 1, text)
     doc():remove(line1, #text + 1, line2, math.huge)
     if doc():has_selection() then
