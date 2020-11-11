@@ -34,7 +34,7 @@ of the command name on the command finder, thus to find the shortcut for a comma
 ## User Module
 lite can be configured through use of the user module. The user module can be
 used for changing options in the config module, adding additional key bindings,
-loading custom color themes, modifying the style or changing any other part of
+loading custom color themes, modifying the style, turning on auto-save or changing any other part of
 lite to your personal preference.
 
 The user module is loaded by lite when the application starts, after the plugins
