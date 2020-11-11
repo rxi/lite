@@ -66,10 +66,16 @@ end
 local commands = {
   ["doc:undo"] = function()
     doc():undo()
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:redo"] = function()
     doc():redo()
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:cut"] = function()
@@ -77,6 +83,9 @@ local commands = {
       local text = doc():get_text(doc():get_selection())
       system.set_clipboard(text)
       doc():delete_to(0)
+    end
+    if config.autosave == true then
+        command.perform("doc:save")
     end
   end,
 
@@ -89,6 +98,9 @@ local commands = {
 
   ["doc:paste"] = function()
     doc():text_input(system.get_clipboard():gsub("\r", ""))
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:newline"] = function()
@@ -98,6 +110,9 @@ local commands = {
       indent = indent:sub(#indent + 2 - col)
     end
     doc():text_input("\n" .. indent)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:newline-below"] = function()
@@ -105,6 +120,9 @@ local commands = {
     local indent = doc().lines[line]:match("^[\t ]*")
     doc():insert(line, math.huge, "\n" .. indent)
     doc():set_selection(line + 1, math.huge)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:newline-above"] = function()
@@ -112,6 +130,9 @@ local commands = {
     local indent = doc().lines[line]:match("^[\t ]*")
     doc():insert(line, 1, indent .. "\n")
     doc():set_selection(line, math.huge)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:delete"] = function()
@@ -120,6 +141,9 @@ local commands = {
       doc():remove(line, col, line, math.huge)
     end
     doc():delete_to(translate.next_char)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:backspace"] = function()
@@ -132,6 +156,9 @@ local commands = {
       end
     end
     doc():delete_to(translate.previous_char)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:select-all"] = function()
@@ -160,13 +187,14 @@ local commands = {
     local line1, _, line2 = doc():get_selection(true)
     if line1 == line2 then line2 = line2 + 1 end
     local text = doc():get_text(line1, 1, line2, math.huge)
-    text = text:gsub("(.-)\n[\t ]*", function(x)
-      return x:find("^%s*$") and x or x .. " "
-    end)
+    text = text:gsub("\n[\t ]*", " ")
     doc():insert(line1, 1, text)
     doc():remove(line1, #text + 1, line2, math.huge)
     if doc():has_selection() then
       doc():set_selection(line1, math.huge)
+    end
+    if config.autosave == true then
+      command.perform("doc:save")
     end
   end,
 
@@ -177,11 +205,17 @@ local commands = {
     else
       doc():text_input(text)
     end
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:unindent"] = function()
     local text = get_indent_string()
     remove_from_start_of_selected_lines(text)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:duplicate-lines"] = function()
@@ -191,6 +225,9 @@ local commands = {
     doc():insert(line2 + 1, 1, text)
     local n = line2 - line1 + 1
     doc():set_selection(line1 + n, col1, line2 + n, col2, swap)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:delete-lines"] = function()
@@ -198,6 +235,9 @@ local commands = {
     append_line_if_last_line(line2)
     doc():remove(line1, 1, line2 + 1, 1)
     doc():set_selection(line1, col1)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:move-lines-up"] = function()
@@ -209,6 +249,9 @@ local commands = {
       doc():remove(line1 - 1, 1, line1, 1)
       doc():set_selection(line1 - 1, col1, line2 - 1, col2, swap)
     end
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:move-lines-down"] = function()
@@ -219,6 +262,9 @@ local commands = {
       doc():remove(line2 + 1, 1, line2 + 2, 1)
       doc():insert(line1, 1, text)
       doc():set_selection(line1 + 1, col1, line2 + 1, col2, swap)
+    end
+    if config.autosave == true then
+      command.perform("doc:save")
     end
   end,
 
@@ -239,14 +285,23 @@ local commands = {
     else
       insert_at_start_of_selected_lines(comment_text, true)
     end
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:upper-case"] = function()
     doc():replace(string.upper)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:lower-case"] = function()
     doc():replace(string.lower)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:go-to-line"] = function()
@@ -282,6 +337,9 @@ local commands = {
 
   ["doc:toggle-line-ending"] = function()
     doc().crlf = not doc().crlf
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 
   ["doc:save-as"] = function()
@@ -315,6 +373,9 @@ local commands = {
         os.remove(old_filename)
       end
     end, common.path_suggest)
+    if config.autosave == true then
+      command.perform("doc:save")
+    end
   end,
 }
 

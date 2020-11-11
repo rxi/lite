@@ -16,5 +16,6 @@ config.line_height = 1.2
 config.indent_size = 2
 config.tab_type = "soft"
 config.line_limit = 80
+config.autosave = true
 
 return config

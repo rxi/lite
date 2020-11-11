@@ -5,7 +5,7 @@ local style = require "core.style"
 local keymap = require "core.keymap"
 local translate = require "core.doc.translate"
 local View = require "core.view"
-
+local command = require "core.command"
 
 local DocView = View:extend()
 
@@ -259,6 +259,9 @@ end
 
 function DocView:on_text_input(text)
   self.doc:text_input(text)
+  if config.autosave == true then
+    command.perform("doc:save")
+  end
 end
 
 
