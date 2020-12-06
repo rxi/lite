@@ -41,7 +41,6 @@ syntax.add {
     ["case"]     = "keyword",
     ["default"]  = "keyword",
     ["auto"]     = "keyword",
-    ["const"]    = "keyword",
     ["void"]     = "keyword",
     ["int"]      = "keyword2",
     ["short"]    = "keyword2",
