@@ -1,7 +1,7 @@
 local syntax = require "core.syntax"
 
 syntax.add {
-  files = "%.py$",
+  files = { "%.py$", "%.pyw$" },
   headers = "^#!.*[ /]python",
   comment = "#",
   patterns = {
