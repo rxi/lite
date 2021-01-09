@@ -3,6 +3,7 @@ local config = require "core.config"
 local style = require "core.style"
 local common = require "core.common"
 local Object = require "core.object"
+local keymap = require "core.keymap"
 
 
 local View = Object:extend()
@@ -97,7 +98,11 @@ end
 
 function View:on_mouse_wheel(y)
   if self.scrollable then
-    self.scroll.to.y = self.scroll.to.y + y * -config.mouse_wheel_scroll
+    if keymap.modkeys['alt'] then
+      self.scroll.to.x = self.scroll.to.x + y * -config.mouse_wheel_scroll
+    else
+      self.scroll.to.y = self.scroll.to.y + y * -config.mouse_wheel_scroll
+    end
   end
 end
 
