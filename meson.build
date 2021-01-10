@@ -4,6 +4,7 @@ project('lite',
 
 c_compiler = meson.get_compiler('c')
 sdl2_dep = c_compiler.find_library('SDL2')
+m_dep = c_compiler.find_library('m')
 args = '-Wall -O3 -g -std=gnu11 -fno-strict-aliasing '
 
 sources = [
@@ -53,5 +54,5 @@ executable('lite',
             sources,
             cpp_args: args + '-DLUA_USE_POSIX',
             include_directories: include_directories('src'),
-            dependencies: sdl2_dep,
+            dependencies: [sdl2_dep,m_dep],
             install: false)
