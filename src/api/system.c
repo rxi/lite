@@ -352,6 +352,87 @@ static int f_exec(lua_State *L) {
   return 0;
 }
 
+static int f_popen(lua_State *L) {
+  size_t len;
+  const char *cmd = luaL_checklstring(L, 1, &len);
+
+  unsigned long exitCode = 0;
+  luaL_Buffer stdoutBuf;
+  luaL_buffinit(L, &stdoutBuf);
+
+#if _WIN32
+  char* buf = malloc(len + 32);
+  if (!buf) { luaL_error(L, "buffer allocation failed"); }
+  sprintf(buf, "cmd.exe /c \"%s\"", cmd);
+
+  // from https://stackoverflow.com/questions/7018228/how-do-i-redirect-output-to-a-file-with-createprocess
+  SECURITY_ATTRIBUTES sa;
+  sa.nLength = sizeof(sa);
+  sa.lpSecurityDescriptor = NULL;
+  sa.bInheritHandle = TRUE;
+
+  HANDLE stdoutReadHandle, stdoutWriteHandle;
+  if (!CreatePipe(&stdoutReadHandle, &stdoutWriteHandle, &sa, 0)) {
+    luaL_error(L, "Unable to create stdout pipe");
+  }
+  if (!SetHandleInformation(stdoutReadHandle, HANDLE_FLAG_INHERIT, 0)) {
+    luaL_error(L, "Unable to create stdout pipe");
+  }
+
+  PROCESS_INFORMATION pi;
+  STARTUPINFO si;
+
+  ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+  ZeroMemory(&si, sizeof(STARTUPINFO));
+  si.cb = sizeof(STARTUPINFO);
+  si.dwFlags |= STARTF_USESTDHANDLES;
+  si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+  si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+  si.hStdOutput = stdoutWriteHandle;
+
+  if (!CreateProcess(NULL, buf, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+    luaL_error(L, "Failed to start process: %d", GetLastError());
+  }
+
+  // read data from stdout
+  DWORD read, rem;
+  for (;;) {
+    if (!PeekNamedPipe(stdoutReadHandle, NULL, 0, NULL, &rem, NULL)) {
+      luaL_error(L, "Error peeking into stdout: %d", GetLastError());
+    }
+    if (!GetExitCodeProcess(pi.hProcess, &exitCode)) {
+      luaL_error(L, "Error checking process exit code: %d", GetLastError());
+    }
+    if (exitCode != 259 && rem == 0) { break; }
+
+    // if there are things to read, resize and read it
+    if (rem) {
+      char* b = luaL_prepbuffsize(&stdoutBuf, rem);
+      if (!ReadFile(stdoutReadHandle, b, rem, &read, NULL)) {
+        luaL_error(L, "Error reading from stdout: %d", GetLastError());
+      }
+      luaL_addsize(&stdoutBuf, read);
+    }
+  }
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
+#else
+  FILE* pipe = popen(cmd, "r");
+  if (pipe == NULL) { luaL_error(L, "Failed to start process: %d", errno); }
+
+  size_t read;
+  while(!feof(pipe)) {
+    char* b = luaL_prepbuffer(&stdoutBuf);
+    read = fread(b, sizeof(char), LUAL_BUFFERSIZE, pipe);
+    luaL_addsize(&stdoutBuf, read);
+  }
+  int status = pclose(pipe);
+  if (WIFEXITED(status)) { exitCode = WEXITSTATUS(status); }
+#endif
+  luaL_pushresult(&stdoutBuf);
+  lua_pushnumber(L, exitCode);
+  return 2;
+}
 
 static int f_fuzzy_match(lua_State *L) {
   const char *str = luaL_checkstring(L, 1);
@@ -396,6 +477,7 @@ static const luaL_Reg lib[] = {
   { "get_time",            f_get_time            },
   { "sleep",               f_sleep               },
   { "exec",                f_exec                },
+  { "popen",               f_popen               },
   { "fuzzy_match",         f_fuzzy_match         },
   { NULL, NULL }
 };
