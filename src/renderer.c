@@ -14,7 +14,7 @@ struct RenImage {
 
 typedef struct {
   RenImage *image;
-  stbtt_bakedchar glyphs[256];
+  stbtt_packedchar glyphs[256];
 } GlyphSet;
 
 struct RenFont {
@@ -111,16 +111,18 @@ static GlyphSet* load_glyphset(RenFont *font, int idx) {
   /* init image */
   int width = 128;
   int height = 128;
+  stbtt_pack_context pc;
+
 retry:
   set->image = ren_new_image(width, height);
-
-  /* load glyphs */
   float s =
     stbtt_ScaleForMappingEmToPixels(&font->stbfont, 1) /
     stbtt_ScaleForPixelHeight(&font->stbfont, 1);
-  int res = stbtt_BakeFontBitmap(
-    font->data, 0, font->size * s, (void*) set->image->pixels,
-    width, height, idx * 256, 256, set->glyphs);
+
+  stbtt_PackBegin(&pc, (void*) set->image->pixels, width, height, 0, 1, NULL);
+  stbtt_PackSetOversampling(&pc, 1, 1);
+  int res = stbtt_PackFontRange(&pc, font->data, 0, font->size * s, idx*256, 256, set->glyphs);
+  stbtt_PackEnd(&pc);
 
   /* retry with a larger image buffer if the buffer wasn't large enough */
   if (res < 0) {
@@ -189,10 +191,10 @@ RenFont* ren_load_font(const char *filename, float size) {
   font->height = (ascent - descent + linegap) * scale + 0.5;
 
   /* make tab and newline glyphs invisible */
-  stbtt_bakedchar *g = get_glyphset(font, '\n')->glyphs;
+  stbtt_packedchar *g = get_glyphset(font, '\n')->glyphs;
   g['\t'].x1 = g['\t'].x0;
   g['\n'].x1 = g['\n'].x0;
-
+	
   return font;
 
 fail:
@@ -235,7 +237,7 @@ int ren_get_font_width(RenFont *font, const char *text) {
   while (*p) {
     p = utf8_to_codepoint(p, &codepoint);
     GlyphSet *set = get_glyphset(font, codepoint);
-    stbtt_bakedchar *g = &set->glyphs[codepoint & 0xff];
+    stbtt_packedchar *g = &set->glyphs[codepoint & 0xff];
     x += g->xadvance;
   }
   return x;
@@ -340,7 +342,7 @@ int ren_draw_text(RenFont *font, const char *text, int x, int y, RenColor color)
   while (*p) {
     p = utf8_to_codepoint(p, &codepoint);
     GlyphSet *set = get_glyphset(font, codepoint);
-    stbtt_bakedchar *g = &set->glyphs[codepoint & 0xff];
+    stbtt_packedchar *g = &set->glyphs[codepoint & 0xff];
     rect.x = g->x0;
     rect.y = g->y0;
     rect.width = g->x1 - g->x0;
