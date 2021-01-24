@@ -16,6 +16,8 @@ lite is a lightweight text editor written mostly in Lua — it aims to provide
 something practical, pretty, *small* and fast, implemented as simply as
 possible; easy to modify and extend, or to use without doing either.
 
+You can read more about the implementation in [this post](https://rxi.github.io/lite_an_implementation_overview.html).
+
 ## Customization
 Additional functionality can be added through plugins which are available from
 the [plugins repository](https://github.com/rxi/lite-plugins); additional color
