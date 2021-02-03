@@ -1,4 +1,5 @@
 local core = require "core"
+local config = require "core.config"
 local common = require "core.common"
 local style = require "core.style"
 local keymap = require "core.keymap"
@@ -297,8 +298,14 @@ function Node:update_layout()
     local av = self.active_view
     if #self.views > 1 then
       local _, _, _, th = self:get_tab_rect(1)
-      av.position.x, av.position.y = self.position.x, self.position.y + th
-      av.size.x, av.size.y = self.size.x, self.size.y - th
+      av.position.x, av.position.y = self.position.x, self.position.y
+      av.size.x, av.size.y = self.size.x, self.size.y
+      if config.show_tabs then
+        av.position.x = av.position.x + th
+        av.position.y = av.position.y + th
+        av.size.x = av.size.x - th
+        av.size.y = av.size.y - th
+      end
     else
       copy_position_and_size(av, self)
     end
@@ -361,7 +368,7 @@ end
 
 function Node:draw()
   if self.type == "leaf" then
-    if #self.views > 1 then
+    if #self.views > 1 and config.show_tabs then
       self:draw_tabs()
     end
     local pos, size = self.active_view.position, self.active_view.size
