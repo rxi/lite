@@ -11,6 +11,12 @@ if [[ $* == *windows* ]]; then
   lflags="$lflags -Lwinlib/SDL2-2.0.10/x86_64-w64-mingw32/lib"
   lflags="-lmingw32 -lSDL2main $lflags -mwindows -o $outfile res.res"
   x86_64-w64-mingw32-windres res.rc -O coff -o res.res
+elif [[ $* == *darwin* ]]; then
+  platform="darwin"
+  outfile="lite"
+  compiler="gcc"
+  cflags="$cflags -DLUA_USE_POSIX -Imaclib/SDL2.0.14_1/include -D_THREAD_SAFE"
+  lflags="$lflags -Lmaclib/SDL2.0.14_1/lib -o $outfile"
 else
   platform="unix"
   outfile="lite"
