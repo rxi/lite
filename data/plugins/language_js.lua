@@ -6,6 +6,7 @@ syntax.add {
   patterns = {
     { pattern = "//.-\n",               type = "comment"  },
     { pattern = { "/%*", "%*/" },       type = "comment"  },
+    { pattern = { '/', '/', '\\' },     type = "string"   },
     { pattern = { '"', '"', '\\' },     type = "string"   },
     { pattern = { "'", "'", '\\' },     type = "string"   },
     { pattern = { "`", "`", '\\' },     type = "string"   },
