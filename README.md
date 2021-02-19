@@ -35,8 +35,8 @@ You can build the project yourself on Linux with following prerequisites:
 #### Debian/Ubuntu
 
 ```
-sudo apt install libsdl2-dev gcc
-./build.sh
+sudo apt install libsdl2-dev gcc make
+make
 ```
 
 ### Windows
