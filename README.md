@@ -24,8 +24,25 @@ The editor can be customized by making changes to the
 [user module](data/user/init.lua).
 
 ## Building
-You can build the project yourself on Linux using the `build.sh` script
-or on Windows using the `build.bat` script *([MinGW](https://nuwen.net/mingw.html) is required)*.
+
+### Linux
+
+You can build the project yourself on Linux with following prerequisites:
+
+ * GCC
+ * Simple DirectMedia Layer development files
+
+#### Debian/Ubuntu
+
+```
+sudo apt install libsdl2-dev gcc make
+make
+sudo make install PREFIX=/usr/local
+```
+
+### Windows
+
+Using the `build.bat` script *([MinGW](https://nuwen.net/mingw.html) is required)*.
 Note that the project does not need to be rebuilt if you are only making changes
 to the Lua portion of the code.
 
