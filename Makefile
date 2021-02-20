@@ -1,5 +1,4 @@
 PREFIX ?= $(HOME)/.local
-TARGET ?= lite
 
 OBJ_DIR ?= $(shell pwd)/build
 SRC_DIR := $(shell pwd)/src
@@ -12,16 +11,25 @@ SRCS := $(shell find $(SRC_DIR) -name *.$(SRC_EXT))
 SOURCES := $(foreach sname, $(SRCS), $(abspath $(sname)))
 OBJECTS := $(patsubst $(SRC_DIR)/%.$(SRC_EXT), $(OBJ_DIR)/%.$(OBJ_EXT), $(SOURCES))
 
-CC := gcc
 CFLAGS ?=
 LDLAGS ?=
 
 CFLAGS +=-Wall -O3 -g -std=gnu11 -fno-strict-aliasing -Isrc
 LDFLAGS +=-lSDL2 -lm -ldl
 
-UNAME := $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-CFLAGS +=-DLUA_USE_POSIX -fPIC -DLUA_COMPAT_ALL
+ifeq ($(OS),Windows_NT)
+  TARGET ?= lite.exe
+  CC := x86_64-w64-mingw32-gcc
+  CFLAGS += -DLUA_USE_POPEN -Iwinlib/SDL2-2.0.10/x86_64-w64-mingw32/include
+  LDFLAGS += -Lwinlib/SDL2-2.0.10/x86_64-w64-mingw32/lib -lmingw32 -lSDL2main -mwindows res.res
+	x86_64-w64-mingw32-windres res.rc -O coff -o res.res
+else
+  TARGET ?= lite
+  CC := gcc
+  UNAME := $(shell uname -s)
+  ifeq ($(UNAME_S),Linux)
+    CFLAGS +=-DLUA_USE_POSIX -fPIC -DLUA_COMPAT_ALL
+  endif
 endif
 
 all: $(TARGET)
