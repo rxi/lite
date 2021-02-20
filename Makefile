@@ -1,4 +1,4 @@
-PREFIX ?= /usr/local
+PREFIX ?= $(HOME)/.local
 TARGET ?= lite
 
 OBJ_DIR ?= $(shell pwd)/build
@@ -16,12 +16,12 @@ CC := gcc
 CFLAGS ?=
 LDLAGS ?=
 
-CFLAGS +=-Wall -O3 -g -std=gnu11 -fno-strict-aliasing -Isrc -fPIC -DLUA_COMPAT_ALL
-LDFLAGS +=-lSDL2 -lm
+CFLAGS +=-Wall -O3 -g -std=gnu11 -fno-strict-aliasing -Isrc
+LDFLAGS +=-lSDL2 -lm -ldl
 
 UNAME := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-CFLAGS +=-DLUA_USE_POSIX
+CFLAGS +=-DLUA_USE_POSIX -fPIC -DLUA_COMPAT_ALL
 endif
 
 all: $(TARGET)
@@ -30,7 +30,7 @@ $(TARGET): $(OBJECTS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(OBJ_DIR)/%$(OBJ_EXT): $(SRC_DIR)/%$(SRC_EXT)
-	mkdir -p $(dir $@)
+	@mkdir -p $(dir $@)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
@@ -39,7 +39,10 @@ clean:
 .PHONY: clean
 
 install: all
-	@echo Installing to $(DESTDIR)$(PREFIX) ...
-	@mkdir -p $(DESTDIR)$(PREFIX)/bin/
-	@cp -fp $(TARGET) $(DESTDIR)$(PREFIX)/bin/
+	@echo Installing to $(PREFIX) ...
+	@mkdir -p $(PREFIX)/bin/
+	@cp -fp $(TARGET) $(PREFIX)/bin/
+	@mkdir -p $(PREFIX)/bin/data
+	@echo Copying lua files to $(PREFIX)/bin/data
+	@cp -r data/* $(PREFIX)/bin/data/
 	@echo Complete.

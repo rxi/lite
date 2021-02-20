@@ -37,6 +37,7 @@ You can build the project yourself on Linux with following prerequisites:
 ```
 sudo apt install libsdl2-dev gcc make
 make
+sudo make install PREFIX=/usr/local
 ```
 
 ### Windows
