@@ -119,9 +119,8 @@ end
 
 
 function DocView:get_line_text_y_offset()
-  local lh = self:get_line_height()
   local th = self:get_font():get_height()
-  return (lh - th) / 2
+  return math.floor(th*config.line_height - th)
 end
 
 
