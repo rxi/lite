@@ -10,7 +10,8 @@
 #elif __APPLE__
   #include <mach-o/dyld.h>
 #elif __FreeBSD__
-  #include <stdlib.h>
+  #include <sys/sysctl.h>
+  #include <unistd.h>
 #endif
 
 
@@ -28,7 +29,7 @@ static double get_scale(void) {
 }
 
 
-static void get_exe_filename(const char *self, char *buf, int sz) {
+static void get_exe_filename(char *buf, int sz) {
 #if _WIN32
   int len = GetModuleFileName(NULL, buf, sz - 1);
   buf[len] = '\0';
@@ -41,7 +42,16 @@ static void get_exe_filename(const char *self, char *buf, int sz) {
   unsigned size = sz;
   _NSGetExecutablePath(buf, &size);
 #elif __FreeBSD__
-  realpath(self, buf);
+  int items[] = {
+    CTL_KERN,
+    KERN_PROC,
+    KERN_PROC_PATHNAME,
+    getpid()
+  };
+
+  size_t len;
+  (void) sysctl(items, 4, buf, &len, NULL, 0);
+  buf[len] = '\0';
 #else
   strcpy(buf, "./lite");
 #endif
@@ -121,7 +131,7 @@ int main(int argc, char **argv) {
   char exename[2048];
 #endif
 
-  get_exe_filename(argv[0], exename, sizeof(exename));
+  get_exe_filename(exename, sizeof(exename));
   lua_pushstring(L, exename);
   lua_setglobal(L, "EXEFILE");
 
