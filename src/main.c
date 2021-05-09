@@ -9,6 +9,9 @@
   #include <unistd.h>
 #elif __APPLE__
   #include <mach-o/dyld.h>
+#elif __FreeBSD__
+  #include <sys/sysctl.h>
+  #include <unistd.h>
 #endif
 
 
@@ -38,6 +41,17 @@ static void get_exe_filename(char *buf, int sz) {
 #elif __APPLE__
   unsigned size = sz;
   _NSGetExecutablePath(buf, &size);
+#elif __FreeBSD__
+  int items[] = {
+    CTL_KERN,
+    KERN_PROC,
+    KERN_PROC_PATHNAME,
+    getpid()
+  };
+
+  size_t len;
+  (void) sysctl(items, 4, buf, &len, NULL, 0);
+  buf[len] = '\0';
 #else
   strcpy(buf, "./lite");
 #endif
@@ -111,7 +125,12 @@ int main(int argc, char **argv) {
   lua_pushnumber(L, get_scale());
   lua_setglobal(L, "SCALE");
 
+#ifdef __FreeBSD__
+  char exename[PATH_MAX];
+#else
   char exename[2048];
+#endif
+
   get_exe_filename(exename, sizeof(exename));
   lua_pushstring(L, exename);
   lua_setglobal(L, "EXEFILE");
