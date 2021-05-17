@@ -5,6 +5,67 @@
 
 #ifdef _WIN32
   #include <windows.h>
+  #include <dwmapi.h>
+  #include <SDL2/SDL_syswm.h>
+
+  enum WINDOWCOMPOSITIONATTRIB {
+    WCA_USEDARKMODECOLORS = 26 
+  };
+  
+  struct WINDOWCOMPOSITIONATTRIBDATA {
+    enum WINDOWCOMPOSITIONATTRIB Attrib;
+    PVOID pvData;
+    SIZE_T cbData;
+  };
+  
+  enum PreferredAppMode { Default, AllowDark, ForceDark, ForceLight, Max };
+ 
+  typedef BOOL(WINAPI *fnSetWindowCompositionAttribute)(
+      HWND hWnd, struct WINDOWCOMPOSITIONATTRIBDATA *);
+  typedef VOID(WINAPI *fnRefreshImmersiveColorPolicyState)(); // ordinal 104
+  typedef BOOL(WINAPI *fnShouldAppsUseDarkMode)();            // ordinal 132
+  typedef enum PreferredAppMode(WINAPI *fnSetPreferredAppMode)(
+      enum PreferredAppMode appMode); // ordinal 135
+  
+  fnRefreshImmersiveColorPolicyState _RefreshImmersiveColorPolicyState = NULL;
+  fnSetWindowCompositionAttribute _SetWindowCompositionAttribute = NULL;
+  fnShouldAppsUseDarkMode _ShouldAppsUseDarkMode = NULL;
+  fnSetPreferredAppMode _SetPreferredAppMode = NULL;
+
+  HWND getWinHandle(SDL_Window *win) {
+    SDL_SysWMinfo infoWindow;
+    SDL_VERSION(&infoWindow.version);
+    SDL_GetWindowWMInfo(win, &infoWindow);
+    return (infoWindow.info.win.window);
+  }
+  
+  void get_dark_titlebar(SDL_Window *window, int dark) {
+    HWND hwnd;
+    hwnd = getWinHandle(window);
+    HMODULE hUxtheme =
+        LoadLibraryExW(L"uxtheme.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (hUxtheme) {
+      _SetWindowCompositionAttribute =
+          (fnSetWindowCompositionAttribute)(GetProcAddress(
+              GetModuleHandleW(L"user32.dll"), "SetWindowCompositionAttribute"));
+      _RefreshImmersiveColorPolicyState = (fnRefreshImmersiveColorPolicyState)(
+          GetProcAddress(hUxtheme, MAKEINTRESOURCEA(104)));
+      _ShouldAppsUseDarkMode = (fnShouldAppsUseDarkMode)(
+          GetProcAddress(hUxtheme, MAKEINTRESOURCEA(132)));
+      _SetPreferredAppMode = (fnSetPreferredAppMode)(
+          GetProcAddress(hUxtheme, MAKEINTRESOURCEA(135)));
+  
+      if (_RefreshImmersiveColorPolicyState && _ShouldAppsUseDarkMode &&
+          _SetPreferredAppMode) {
+        _SetPreferredAppMode(AllowDark);
+        _RefreshImmersiveColorPolicyState();
+        LONG ldark = dark;
+        struct WINDOWCOMPOSITIONATTRIBDATA data = {WCA_USEDARKMODECOLORS, &ldark,
+                                                   sizeof ldark};
+        _SetWindowCompositionAttribute(hwnd, &data);
+      }
+    }
+  }
 #elif __linux__
   #include <unistd.h>
 #elif __APPLE__
@@ -86,6 +147,9 @@ int main(int argc, char **argv) {
   window = SDL_CreateWindow(
     "", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, dm.w * 0.8, dm.h * 0.8,
     SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_HIDDEN);
+  #if _WIN32
+    get_dark_titlebar(window, 1);
+  #endif
   init_window_icon();
   ren_init(window);
 
