@@ -377,6 +377,9 @@ function core.step()
     end
     core.redraw = true
   end
+
+  if not core.redraw and not system.window_has_focus() then return false end
+
   if mouse_moved then
     core.try(core.on_event, "mousemoved", mouse.x, mouse.y, mouse.dx, mouse.dy)
   end
@@ -453,9 +456,6 @@ function core.run()
     core.frame_start = system.get_time()
     local did_redraw = core.step()
     run_threads()
-    if not did_redraw and not system.window_has_focus() then
-      system.wait_event(0.25)
-    end
     local elapsed = system.get_time() - core.frame_start
     system.sleep(math.max(0, 1 / config.fps - elapsed))
   end
